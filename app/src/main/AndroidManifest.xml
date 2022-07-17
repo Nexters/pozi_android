@@ -16,6 +16,10 @@
         android:theme="@style/Theme.Pozi_android"
         android:name=".Application">
 
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="@string/naver_map_client_id"/>
+
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">
