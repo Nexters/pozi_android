@@ -2,14 +2,12 @@ package com.example.pozi_android.ui.main
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.ui.base.BaseActivity
@@ -21,6 +19,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
+import com.example.pozi_android.data.local.Locations
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,32 +94,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 Status.SUCCESS -> {
                     if (!it.data!!.locations.isNullOrEmpty()) { //성공
                         val markers = mutableListOf<Marker>()
-                        it.data.locations.forEach { it ->
-                            markers += Marker().apply {
-                                position = LatLng(it.lat.toDouble(), it.lng.toDouble())
-                                isHideCollidedSymbols = true
-                                isIconPerspectiveEnabled = true
-                                // 아이콘 설정
-                                icon = if (it.name.contains("인생네컷")) { //고려사항
-                                    MarkerIcons.GREEN.also {
-                                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_green
-                                    }
-                                } else {
-                                    MarkerIcons.BLUE.also {
-                                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_blue
-                                    }
-                                }
-                            }
-                        }
+                        CreateMarker(markers, it.data.locations)
 
-                        CoroutineScope(Dispatchers.Main).launch {
-                            markers.forEach { marker ->
-                                marker.map = naverMap
-                            }
-                        }
-                        Log.d("임민규", it.data.locations.toString())
-                    } else { //값이 없을때
-                        Log.d("임민규", "else")
+                    } else {
+                        Log.d("임민규", "값이 없을때")
                     }
                 }
                 Status.ERROR -> {
@@ -170,6 +147,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                 }
             }
+    }
+
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<Locations>) {
+        locations.forEach { it ->
+            markers += Marker().apply {
+                position = LatLng(it.lat.toDouble(), it.lng.toDouble())
+                isHideCollidedSymbols = true
+                isIconPerspectiveEnabled = true
+                // 아이콘 설정
+                icon = if (it.name.contains("인생네컷")) { //고려사항
+                    MarkerIcons.GREEN.also {
+                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_green
+                    }
+                } else{
+                    MarkerIcons.BLUE.also {
+                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_blue
+                    }
+                }
+            }
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            markers.forEach { marker ->
+                marker.map = naverMap
+            }
+        }
     }
 
     companion object {
