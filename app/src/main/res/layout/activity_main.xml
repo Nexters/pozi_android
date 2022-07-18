@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"/>
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/houseViewPager"
+            android:id="@+id/ViewPager"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginBottom="150dp"
