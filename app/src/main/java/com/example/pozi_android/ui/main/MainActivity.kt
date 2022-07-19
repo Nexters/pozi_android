@@ -22,6 +22,7 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import com.example.pozi_android.widget.HouseViewPagerAdapter
+import com.naver.maps.map.overlay.OverlayImage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -181,16 +182,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it.lat, it.lng)
+                tag = it.id
+                onClickListener = this@MainActivity
                 isHideCollidedSymbols = true
                 isIconPerspectiveEnabled = true
                 // 아이콘 설정
-                icon = if (it.name.contains("인생네컷")) { //고려사항
-                    MarkerIcons.GREEN.also {
-                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_green
+                icon = when {
+                    it.name.contains("인생네컷") -> {
+                        OverlayImage.fromResource(R.drawable.lifefourcut)
                     }
-                } else {
-                    MarkerIcons.BLUE.also {
-                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_blue
+                    it.name.contains("셀픽스") -> {
+                        OverlayImage.fromResource(R.drawable.photomatic)
+                    }
+                    else -> {
+                        MarkerIcons.BLACK.also {
+                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
+                        }
                     }
                 }
             }
@@ -208,6 +215,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     override fun onClick(overly: Overlay): Boolean {
-        TODO("Not yet implemented")
+        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
+            it.id == overly.tag
+        }
+
+        selectedModel?.let {
+            val position = viewPagerAdapter.currentList.indexOf(it)
+            viewPager.currentItem = position
+        }
+
+        return true
     }
+
 }
