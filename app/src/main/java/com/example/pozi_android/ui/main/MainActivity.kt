@@ -2,14 +2,14 @@ package com.example.pozi_android.ui.main
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
+import com.example.pozi_android.data.remote.model.Locations
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.ui.base.BaseActivity
@@ -21,6 +21,8 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
+import com.example.pozi_android.widget.HouseViewPagerAdapter
+import com.naver.maps.map.overlay.OverlayImage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,8 +38,34 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val viewPager: ViewPager2 by lazy { //이거임
+        findViewById(R.id.ViewPager)
+    }
+    private val viewPagerAdapter = HouseViewPagerAdapter()
+
     override fun initView() {
         attachFragmentmanager()
+        settingViewpager()
+    }
+
+    fun settingViewpager() {
+        viewPager.adapter = viewPagerAdapter
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+            //viewpager에서 바뀔때마다 카메라가 전환된다.
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+                val selectedHouseModel = viewPagerAdapter.currentList[position]
+                val cameraUpdate =
+                    CameraUpdate.scrollTo(LatLng(selectedHouseModel.lat, selectedHouseModel.lng))
+                        .animate(CameraAnimation.Easing)
+
+                naverMap.moveCamera(cameraUpdate)
+            }
+
+        })
     }
 
     fun attachFragmentmanager() {
@@ -95,32 +123,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 Status.SUCCESS -> {
                     if (!it.data!!.locations.isNullOrEmpty()) { //성공
                         val markers = mutableListOf<Marker>()
-                        it.data.locations.forEach { it ->
-                            markers += Marker().apply {
-                                position = LatLng(it.lat.toDouble(), it.lng.toDouble())
-                                isHideCollidedSymbols = true
-                                isIconPerspectiveEnabled = true
-                                // 아이콘 설정
-                                icon = if (it.name.contains("인생네컷")) { //고려사항
-                                    MarkerIcons.GREEN.also {
-                                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_green
-                                    }
-                                } else {
-                                    MarkerIcons.BLUE.also {
-                                        com.naver.maps.map.R.drawable.navermap_default_marker_icon_blue
-                                    }
-                                }
-                            }
-                        }
-
-                        CoroutineScope(Dispatchers.Main).launch {
-                            markers.forEach { marker ->
-                                marker.map = naverMap
-                            }
-                        }
-                        Log.d("임민규", it.data.locations.toString())
-                    } else { //값이 없을때
-                        Log.d("임민규", "else")
+                        CreateMarker(markers, it.data.locations)
+                        viewPagerAdapter.submitList(it.data.locations.toMutableList())
+                    } else {
+                        Log.d("임민규", "값이 없을때")
                     }
                 }
                 Status.ERROR -> {
@@ -172,12 +178,53 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<Locations>) {
+        locations.forEach { it ->
+            markers += Marker().apply {
+                position = LatLng(it.lat, it.lng)
+                tag = it.id
+                onClickListener = this@MainActivity
+                isHideCollidedSymbols = true
+                isIconPerspectiveEnabled = true
+                // 아이콘 설정
+                icon = when {
+                    it.name.contains("인생네컷") -> {
+                        OverlayImage.fromResource(R.drawable.lifefourcut)
+                    }
+                    it.name.contains("셀픽스") -> {
+                        OverlayImage.fromResource(R.drawable.photomatic)
+                    }
+                    else -> {
+                        MarkerIcons.BLACK.also {
+                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
+                        }
+                    }
+                }
+            }
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            markers.forEach { marker ->
+                marker.map = naverMap
+            }
+        }
+    }
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         private const val TAG = "MainActivity"
     }
 
     override fun onClick(overly: Overlay): Boolean {
-        TODO("Not yet implemented")
+        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
+            it.id == overly.tag
+        }
+
+        selectedModel?.let {
+            val position = viewPagerAdapter.currentList.indexOf(it)
+            viewPager.currentItem = position
+        }
+
+        return true
     }
+
 }
