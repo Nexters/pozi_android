@@ -12,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.data.remote.spec.PBResponce
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
+import com.example.pozi_android.domain.entity.PB
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -121,19 +122,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         viewModel.photoBoothList.observe(this) {
             when (it.status) {
                 Status.SUCCESS -> {
-                    if (!it.data!!.locations.isNullOrEmpty()) { //성공
+                    if (!it.data!!.isNullOrEmpty()) { //성공
                         val markers = mutableListOf<Marker>()
-                        CreateMarker(markers, it.data.locations)
-                        viewPagerAdapter.submitList(it.data.locations.toMutableList())
+                        CreateMarker(markers, it.data)
+                        viewPagerAdapter.submitList(it.data.toMutableList())
                     } else {
                         Log.d("임민규", "값이 없을때")
                     }
                 }
                 Status.ERROR -> {
                     Log.d("임민규", "ERROR")
-                }
-                Status.LOADING -> {
-                    Log.d("임민규", "LOADING")
                 }
             }
         }
@@ -178,7 +176,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBResponce>) {
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it.lat, it.lng)
