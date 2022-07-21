@@ -56,9 +56,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
 
-                val selectedHouseModel = viewPagerAdapter.currentList[position]
+                val selectedPB = viewPagerAdapter.currentList[position]
                 val cameraUpdate =
-                    CameraUpdate.scrollTo(LatLng(selectedHouseModel.lat, selectedHouseModel.lng))
+                    CameraUpdate.scrollTo(LatLng(selectedPB.lat, selectedPB.lng))
                         .animate(CameraAnimation.Easing)
 
                 naverMap.moveCamera(cameraUpdate)
@@ -112,7 +112,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         this.naverMap = map.apply {
             binding.btnLocation.map = this
         }
-
+        
         viewModel.getCenterList()
 
         viewModel.PBListStateLiveData.observe(this) {
@@ -127,7 +127,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 }
             }
         }
-
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -146,8 +145,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
                 lastLocation.addOnSuccessListener { location: Location? ->
                     currentLocation = location
-                    // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
-                    // 파랑색 점, 현재 위치 표시
                     naverMap.locationOverlay.run {
                         isVisible = true
                         position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
