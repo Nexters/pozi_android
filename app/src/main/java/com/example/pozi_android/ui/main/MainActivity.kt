@@ -117,20 +117,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getCenterList()
 
-
-        //databinding으로 연결해서 바로 받아올수있게 한다.
-        viewModel.photoBoothList.observe(this) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    if (!it.data!!.isNullOrEmpty()) { //성공
-                        val markers = mutableListOf<Marker>()
-                        CreateMarker(markers, it.data)
-                        viewPagerAdapter.submitList(it.data.toMutableList())
-                    } else {
-                        Log.d("임민규", "값이 없을때")
-                    }
+        viewModel.PBListStateLiveData.observe(this) {
+            when (it) {
+                is PBState.Success -> {
+                    val markers = mutableListOf<Marker>()
+                    CreateMarker(markers, it.data)
+                    viewPagerAdapter.submitList(it.data.toMutableList())
                 }
-                Status.ERROR -> {
+                is PBState.Error -> {
                     Log.d("임민규", "ERROR")
                 }
             }
@@ -176,6 +170,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
+    //databinding 하면 좋겠음
     private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
         locations.forEach { it ->
             markers += Marker().apply {
