@@ -3,7 +3,7 @@ package com.example.pozi_android.data.remote.spec
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class Locations(
+data class PBResponce(
     @SerializedName("id") //이거는 받아오는 순서대로 넣어주는 라이브러리 사용하기
     val id: Int,
 

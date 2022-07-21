@@ -9,7 +9,7 @@ import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
 import androidx.viewpager2.widget.ViewPager2
-import com.example.pozi_android.data.remote.spec.Locations
+import com.example.pozi_android.data.remote.spec.PBResponce
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.ui.base.BaseActivity
@@ -178,7 +178,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<Locations>) {
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBResponce>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it.lat, it.lng)

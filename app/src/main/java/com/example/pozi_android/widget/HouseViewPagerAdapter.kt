@@ -8,19 +8,19 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.R
-import com.example.pozi_android.data.remote.spec.Locations
+import com.example.pozi_android.data.remote.spec.PBResponce
 
 class HouseViewPagerAdapter :
-    ListAdapter<Locations, HouseViewPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<PBResponce, HouseViewPagerAdapter.ItemViewHolder>(differ) {
 
     inner class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(locations: Locations) {
+        fun bind(PBResponce: PBResponce) {
             val nameTextView = view.findViewById<TextView>(R.id.nameTextView)
             val priceTextView = view.findViewById<TextView>(R.id.addressTextView)
 
-            nameTextView.text = locations.name
-            priceTextView.text = locations.address
+            nameTextView.text = PBResponce.name
+            priceTextView.text = PBResponce.address
 
         }
     }
@@ -42,12 +42,12 @@ class HouseViewPagerAdapter :
 
     companion object {
 
-        val differ = object : DiffUtil.ItemCallback<Locations>() {
-            override fun areItemsTheSame(oldItem: Locations, newItem: Locations): Boolean {
+        val differ = object : DiffUtil.ItemCallback<PBResponce>() {
+            override fun areItemsTheSame(oldItem: PBResponce, newItem: PBResponce): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: Locations, newItem: Locations): Boolean {
+            override fun areContentsTheSame(oldItem: PBResponce, newItem: PBResponce): Boolean {
                 return oldItem == newItem
             }
 
