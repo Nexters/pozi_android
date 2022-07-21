@@ -1,19 +1,14 @@
 package com.example.pozi_android.domain.mapper
 
-import com.example.pozi_android.R
-import com.example.pozi_android.data.remote.network.PBListRes
-import com.example.pozi_android.data.remote.spec.PBResponce
+import com.example.pozi_android.data.remote.spec.PBRes
 import com.example.pozi_android.domain.entity.PB
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.OverlayImage
-import com.naver.maps.map.util.MarkerIcons
+
 
 object PBMapper {
-    fun mapperToPB(PBres: PBListRes): List<PB> {
-        val PBList = mutableListOf<PB>()
+    fun mapperToPB(PBres: PBRes): List<PB> {
+        val PBlist = mutableListOf<PB>()
         PBres.locations.forEach { it ->
-            PBList.add(
+            PBlist.add(
                 PB(
                     id = it.id,
                     address = it.address,
@@ -23,6 +18,6 @@ object PBMapper {
                 )
             )
         }
-        return PBList.toList()
+        return PBlist.toList()
     }
 }
