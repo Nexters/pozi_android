@@ -9,10 +9,6 @@ data class DataResult<out T>(val status: Status, val data: T?, val message: Stri
 
         fun <T> error(data: T?, message: String): DataResult<T> =
             DataResult(status = Status.ERROR, data = data, message = message)
-
-        fun <T> loading(data: T?): DataResult<T> =
-            DataResult(status = Status.LOADING, data = data, message = null)
-
     }
 
 }
