@@ -112,7 +112,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         this.naverMap = map.apply {
             binding.btnLocation.map = this
         }
-        
+
         viewModel.getCenterList()
 
         viewModel.PBListStateLiveData.observe(this) {

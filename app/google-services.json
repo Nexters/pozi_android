@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "485518487196",
+    "project_id": "pozi-98e8f",
+    "storage_bucket": "pozi-98e8f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485518487196:android:f12a1844743cd8c9580759",
+        "android_client_info": {
+          "package_name": "com.example.pozi_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "485518487196-tf6scf8kt5faurqt27124fl1cpeovdut.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pozi_android",
+            "certificate_hash": "25003f5a689bfd1e5a2221caa743b1ed802d382f"
+          }
+        },
+        {
+          "client_id": "485518487196-qlcm89qdm1u9n7ge6eahilog8n2rd3vs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRheU7QjAds1hhnv_vh9IUJ1R5d5D6Jc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "485518487196-qlcm89qdm1u9n7ge6eahilog8n2rd3vs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "485518487196-l13n5k113nruu8jl6kvucg0toa0p6ank.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.iOS.Pozi.Pozi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
