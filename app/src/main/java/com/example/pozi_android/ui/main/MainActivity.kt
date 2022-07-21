@@ -9,7 +9,7 @@ import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
 import androidx.viewpager2.widget.ViewPager2
-import com.example.pozi_android.data.remote.model.Locations
+import com.example.pozi_android.data.remote.spec.Locations
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.ui.base.BaseActivity
@@ -48,7 +48,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         settingViewpager()
     }
 
-    fun settingViewpager() {
+    private fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -68,7 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         })
     }
 
-    fun attachFragmentmanager() {
+    private fun attachFragmentmanager() {
         val mapFragment = supportFragmentManager.run {
             // 옵션 설정
             val option = NaverMapOptions().mapType(NaverMap.MapType.Basic)

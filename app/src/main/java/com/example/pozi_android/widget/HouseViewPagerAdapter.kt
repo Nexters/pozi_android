@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.R
-import com.example.pozi_android.data.remote.model.Locations
+import com.example.pozi_android.data.remote.spec.Locations
 
 class HouseViewPagerAdapter :
     ListAdapter<Locations, HouseViewPagerAdapter.ItemViewHolder>(differ) {
