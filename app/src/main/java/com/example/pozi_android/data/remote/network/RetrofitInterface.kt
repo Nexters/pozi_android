@@ -6,5 +6,5 @@ import retrofit2.http.GET
 
 interface RetrofitInterface {
     @GET(LocationsUrl.LOCATION_URL)
-    suspend fun getPhotoBoothList(): Response<LocationRes>
+    suspend fun getPhotoBoothList(): Response<PBRes>
 }
