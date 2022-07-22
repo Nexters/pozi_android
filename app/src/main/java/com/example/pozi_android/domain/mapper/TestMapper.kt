@@ -1,11 +1,11 @@
 package com.example.pozi_android.domain.mapper
 
-import com.example.pozi_android.data.remote.spec.PBRes
+import com.example.pozi_android.data.remote.spec.TestRes
 import com.example.pozi_android.domain.entity.PB
 
 
-object PBMapper {
-    fun mapperToPB(PBres: PBRes): List<PB> {
+object TestMapper {
+    fun mapperToPB(PBres: TestRes): List<PB> {
         val PBlist = mutableListOf<PB>()
         PBres.locations.forEach { it ->
             PBlist.add(

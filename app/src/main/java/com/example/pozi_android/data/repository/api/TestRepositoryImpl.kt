@@ -3,22 +3,22 @@ package com.example.pozi_android.data.repository.api
 import com.example.pozi_android.data.remote.network.DataResult
 import com.example.pozi_android.data.remote.network.RetrofitInterface
 import com.example.pozi_android.domain.entity.PB
-import com.example.pozi_android.domain.mapper.PBMapper
-import com.example.pozi_android.domain.repository.ServiceRepository
+import com.example.pozi_android.domain.mapper.TestMapper
+import com.example.pozi_android.domain.repository.TestRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class ServiceRepositoryImpl(
+class TestRepositoryImpl(
     private val api: RetrofitInterface,
     private val ioDispatcher: CoroutineDispatcher
-) : ServiceRepository {
+) : TestRepository {
 
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         try {
             val response = api.getPhotoBoothList()
             when {
                 response.isSuccessful -> {
-                    val PBlist = PBMapper.mapperToPB(response.body()!!)
+                    val PBlist = TestMapper.mapperToPB(response.body()!!)
                     DataResult.success(PBlist)
                 }
                 else -> {

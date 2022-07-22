@@ -5,7 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.data.remote.network.Status
-import com.example.pozi_android.domain.repository.ServiceRepository
+import com.example.pozi_android.domain.repository.PBInfoRepository
+import com.example.pozi_android.domain.repository.TestRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val serviceRepository: ServiceRepository) :
+class MainViewModel @Inject constructor(private val pbinfoRepository: PBInfoRepository) :
     ViewModel() {
 
     private val _PBListStateLiveData: MutableLiveData<PBState> =
@@ -24,7 +25,7 @@ class MainViewModel @Inject constructor(private val serviceRepository: ServiceRe
         _PBListStateLiveData.value = PBState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
-            val result = serviceRepository.getPBList()
+            val result = pbinfoRepository.getPBList()
             Log.d("임민규", result.data.toString())
             result.let {
                 when (result.status) {

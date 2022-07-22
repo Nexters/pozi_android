@@ -1,8 +1,11 @@
 package com.example.pozi_android.di
 
 import com.example.pozi_android.data.remote.network.RetrofitInterface
-import com.example.pozi_android.domain.repository.ServiceRepository
-import com.example.pozi_android.data.repository.api.ServiceRepositoryImpl
+import com.example.pozi_android.data.repository.api.PBInfoRepositoryImpl
+import com.example.pozi_android.domain.repository.TestRepository
+import com.example.pozi_android.data.repository.api.TestRepositoryImpl
+import com.example.pozi_android.domain.repository.PBInfoRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,6 +21,13 @@ object RepositoryModule {
     fun provideServiceRepository(
         retrofitInterface: RetrofitInterface,
         @DispatcherModule.IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): ServiceRepository =
-        ServiceRepositoryImpl(retrofitInterface, ioDispatcher)
+    ): TestRepository =
+        TestRepositoryImpl(retrofitInterface, ioDispatcher)
+
+    @Singleton
+    @Provides
+    fun providePBInfoRepository(
+        @DispatcherModule.IoDispatcher ioDispatcher: CoroutineDispatcher,
+        firestore: FirebaseFirestore
+    ): PBInfoRepository = PBInfoRepositoryImpl(ioDispatcher, firestore)
 }
