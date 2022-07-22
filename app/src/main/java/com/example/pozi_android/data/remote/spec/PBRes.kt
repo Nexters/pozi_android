@@ -1,8 +1,8 @@
 package com.example.pozi_android.data.remote.spec
 
 data class PBRes(
-    var adress: String? = null,
-    var coordinates: Map<String, Double>? = null,
-    var phoneNumber: String? = null,
-    var subject: String? = null
+    var address: String,
+    var coordinates: Map<String, Double>,
+    var phoneNumber: String,
+    var subject: String
 )

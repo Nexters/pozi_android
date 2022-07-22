@@ -5,16 +5,16 @@ import com.example.pozi_android.domain.entity.PB
 
 
 object TestMapper {
-    fun mapperToPB(PBres: TestRes): List<PB> {
+    fun mapperTotest(PBres: TestRes): List<PB> {
         val PBlist = mutableListOf<PB>()
         PBres.locations.forEach { it ->
             PBlist.add(
                 PB(
                     id = it.id,
                     address = it.address,
-                    lat = it.lat,
-                    lng = it.lng,
-                    name = it.name
+                    _latitude = it.lat,
+                    _longitude = it.lng,
+                    subject = it.name
                 )
             )
         }

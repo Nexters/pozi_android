@@ -18,7 +18,7 @@ class TestRepositoryImpl(
             val response = api.getPhotoBoothList()
             when {
                 response.isSuccessful -> {
-                    val PBlist = TestMapper.mapperToPB(response.body()!!)
+                    val PBlist = TestMapper.mapperTotest(response.body()!!)
                     DataResult.success(PBlist)
                 }
                 else -> {

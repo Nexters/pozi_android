@@ -58,7 +58,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
                 val selectedPB = viewPagerAdapter.currentList[position]
                 val cameraUpdate =
-                    CameraUpdate.scrollTo(LatLng(selectedPB.lat, selectedPB.lng))
+                    CameraUpdate.scrollTo(LatLng(selectedPB._latitude, selectedPB._longitude))
                         .animate(CameraAnimation.Easing)
 
                 naverMap.moveCamera(cameraUpdate)
@@ -169,23 +169,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
         locations.forEach { it ->
             markers += Marker().apply {
-                position = LatLng(it.lat, it.lng)
+                position = LatLng(it._latitude, it._longitude)
                 tag = it.id
                 onClickListener = this@MainActivity
                 isHideCollidedSymbols = true
                 isIconPerspectiveEnabled = true
                 // 아이콘 설정
                 icon = when {
-                    it.name.contains("인생네컷") -> {
+                    it.subject.contains("인생네컷") -> {
                         OverlayImage.fromResource(R.drawable.lifefourcut)
                     }
-                    it.name.contains("셀픽스") -> {
+                    it.subject.contains("셀픽스") -> {
                         OverlayImage.fromResource(R.drawable.photomatic)
                     }
-                    else -> {
-                        MarkerIcons.BLACK.also {
-                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
-                        }
+                    else -> { //지금은 이름에서 받아올수없으니까 인생네컷으로 바꿔놓을게요!!
+                        OverlayImage.fromResource(R.drawable.lifefourcut)
+//                        MarkerIcons.BLACK.also {
+//                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
+//                        }
                     }
                 }
             }

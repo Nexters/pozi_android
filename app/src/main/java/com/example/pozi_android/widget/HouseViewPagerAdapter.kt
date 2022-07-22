@@ -19,7 +19,7 @@ class HouseViewPagerAdapter :
             val nameTextView = view.findViewById<TextView>(R.id.nameTextView)
             val priceTextView = view.findViewById<TextView>(R.id.addressTextView)
 
-            nameTextView.text = PB.name
+            nameTextView.text = PB.subject
             priceTextView.text = PB.address
 
         }
