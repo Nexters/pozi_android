@@ -1,10 +1,10 @@
-package com.example.pozi_android.domain.repository
+package com.example.pozi_android.data.repository.api
 
-import android.util.Log
 import com.example.pozi_android.data.remote.network.DataResult
-import com.example.pozi_android.data.remote.network.LocationRes
 import com.example.pozi_android.data.remote.network.RetrofitInterface
-import com.example.pozi_android.data.repository.api.ServiceRepository
+import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.mapper.PBMapper
+import com.example.pozi_android.domain.repository.ServiceRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -13,12 +13,13 @@ class ServiceRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : ServiceRepository {
 
-    override suspend fun getPhotoBoothList(): DataResult<LocationRes> = withContext(ioDispatcher) {
+    override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         try {
             val response = api.getPhotoBoothList()
             when {
                 response.isSuccessful -> {
-                    DataResult.success(response.body()!!)
+                    val PBlist = PBMapper.mapperToPB(response.body()!!)
+                    DataResult.success(PBlist)
                 }
                 else -> {
                     DataResult.error(null, "오류")

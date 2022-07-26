@@ -9,9 +9,8 @@ import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
 import androidx.viewpager2.widget.ViewPager2
-import com.example.pozi_android.data.remote.model.Locations
-import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.databinding.ActivityMainBinding
+import com.example.pozi_android.domain.entity.PB
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -48,7 +47,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         settingViewpager()
     }
 
-    fun settingViewpager() {
+    private fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -57,9 +56,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
 
-                val selectedHouseModel = viewPagerAdapter.currentList[position]
+                val selectedPB = viewPagerAdapter.currentList[position]
                 val cameraUpdate =
-                    CameraUpdate.scrollTo(LatLng(selectedHouseModel.lat, selectedHouseModel.lng))
+                    CameraUpdate.scrollTo(LatLng(selectedPB.lat, selectedPB.lng))
                         .animate(CameraAnimation.Easing)
 
                 naverMap.moveCamera(cameraUpdate)
@@ -68,7 +67,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         })
     }
 
-    fun attachFragmentmanager() {
+    private fun attachFragmentmanager() {
         val mapFragment = supportFragmentManager.run {
             // 옵션 설정
             val option = NaverMapOptions().mapType(NaverMap.MapType.Basic)
@@ -113,31 +112,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         this.naverMap = map.apply {
             binding.btnLocation.map = this
         }
-
+        
         viewModel.getCenterList()
 
-
-        //databinding으로 연결해서 바로 받아올수있게 한다.
-        viewModel.photoBoothList.observe(this) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    if (!it.data!!.locations.isNullOrEmpty()) { //성공
-                        val markers = mutableListOf<Marker>()
-                        CreateMarker(markers, it.data.locations)
-                        viewPagerAdapter.submitList(it.data.locations.toMutableList())
-                    } else {
-                        Log.d("임민규", "값이 없을때")
-                    }
+        viewModel.PBListStateLiveData.observe(this) {
+            when (it) {
+                is PBState.Success -> {
+                    val markers = mutableListOf<Marker>()
+                    CreateMarker(markers, it.data)
+                    viewPagerAdapter.submitList(it.data.toMutableList())
                 }
-                Status.ERROR -> {
+                is PBState.Error -> {
                     Log.d("임민규", "ERROR")
-                }
-                Status.LOADING -> {
-                    Log.d("임민규", "LOADING")
                 }
             }
         }
-
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -156,8 +145,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
                 lastLocation.addOnSuccessListener { location: Location? ->
                     currentLocation = location
-                    // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
-                    // 파랑색 점, 현재 위치 표시
                     naverMap.locationOverlay.run {
                         isVisible = true
                         position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
@@ -178,7 +165,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<Locations>) {
+    //databinding 하면 좋겠음
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it.lat, it.lng)
