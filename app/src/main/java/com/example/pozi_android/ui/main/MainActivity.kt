@@ -20,9 +20,9 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
-import com.naver.maps.map.util.MarkerIcons
 import com.example.pozi_android.widget.HouseViewPagerAdapter
 import com.naver.maps.map.overlay.OverlayImage
+import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -118,7 +118,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         viewModel.getCenterList()
 
         lifecycleScope.launch {
-            viewModel.PBListStateLiveData.collect{ uiState->
+            viewModel.PBListStateFlow.collect{ uiState->
                 when (uiState) {
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
@@ -180,17 +180,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 isIconPerspectiveEnabled = true
                 // 아이콘 설정
                 icon = when {
-                    it.subject.contains("인생네컷") -> {
+                    it.brand.contains("인생네컷") -> {
                         OverlayImage.fromResource(R.drawable.lifefourcut)
                     }
-                    it.subject.contains("셀픽스") -> {
+                    it.brand.contains("포토매틱") -> {
                         OverlayImage.fromResource(R.drawable.photomatic)
                     }
-                    else -> { //지금은 이름에서 받아올수없으니까 인생네컷으로 바꿔놓을게요!!
-                        OverlayImage.fromResource(R.drawable.lifefourcut)
-//                        MarkerIcons.BLACK.also {
-//                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
-//                        }
+                    else -> {
+                        MarkerIcons.BLACK.also {
+                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
+                        }
                     }
                 }
             }
