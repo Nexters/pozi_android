@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
-) : PBInfoRepository {
+) : PBInfoRepository { //flow 써야하기 함
 
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         return@withContext try {
