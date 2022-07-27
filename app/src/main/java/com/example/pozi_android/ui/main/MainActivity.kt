@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.domain.entity.PB
@@ -25,6 +26,7 @@ import com.naver.maps.map.overlay.OverlayImage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -115,15 +117,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getCenterList()
 
-        viewModel.PBListStateLiveData.observe(this) {
-            when (it) {
-                is PBState.Success -> {
-                    val markers = mutableListOf<Marker>()
-                    CreateMarker(markers, it.data)
-                    viewPagerAdapter.submitList(it.data.toMutableList())
-                }
-                is PBState.Error -> {
-                    Log.d("임민규", "ERROR")
+        lifecycleScope.launch {
+            viewModel.PBListStateLiveData.collect{ uiState->
+                when (uiState) {
+                    is PBState.Success -> {
+                        val markers = mutableListOf<Marker>()
+                        CreateMarker(markers, uiState.data)
+                        viewPagerAdapter.submitList(uiState.data.toMutableList())
+                    }
+                    is PBState.Error -> {
+                        Log.d("임민규", "ERROR")
+                    }
                 }
             }
         }

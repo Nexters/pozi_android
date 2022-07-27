@@ -10,6 +10,9 @@ import com.example.pozi_android.domain.repository.TestRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,9 +20,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val pbinfoRepository: PBInfoRepository) :
     ViewModel() {
 
-    private val _PBListStateLiveData: MutableLiveData<PBState> =
-        MutableLiveData()
-    val PBListStateLiveData: LiveData<PBState> get() = _PBListStateLiveData
+    private val _PBListStateLiveData: MutableStateFlow<PBState> =
+        MutableStateFlow(PBState.noData)
+    val PBListStateLiveData: StateFlow<PBState> = _PBListStateLiveData.asStateFlow()
 
     fun getCenterList() {
         _PBListStateLiveData.value = PBState.Loading
@@ -31,7 +34,7 @@ class MainViewModel @Inject constructor(private val pbinfoRepository: PBInfoRepo
                 when (result.status) {
                     Status.SUCCESS -> {
                         if (!it.data!!.isNullOrEmpty()) {
-                            _PBListStateLiveData.postValue(PBState.Success(it.data))
+                            _PBListStateLiveData.value = PBState.Success(it.data)
                         } else {
                             Log.d("임민규", "값이 없을때")
                         }
