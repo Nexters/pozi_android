@@ -1,6 +1,5 @@
 package com.example.pozi_android.data.repository.api
 
-import android.util.Log
 import com.example.pozi_android.data.remote.network.DataResult
 import com.example.pozi_android.data.remote.spec.PBRes
 import com.example.pozi_android.domain.entity.PB
@@ -17,20 +16,23 @@ class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
 ) : PBInfoRepository { //flow 써야하기 함
-
+    val brandlist = listOf("인생네컷", "포토매틱", "포토이즘-box", "포토이즘-colored", "포토이즘-studio")
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         return@withContext try {
-            val response: QuerySnapshot = firestore.collection("인생네컷").get().await()
-            val PBlist = PBMapper.mapperToPB(response.documents.map {
-                PBRes(
-                    address = it.get("address") as String,
-                    coordinates = it.get("coordinates") as Map<String, Double>,
-                    phoneNumber = it.get("phoneNumber") as String,
-                    subject = it.get("subject") as String
-                )
-            })
+            val PBResult: MutableList<PB> = mutableListOf()
+            for (brand in brandlist) {
+                val response: QuerySnapshot = firestore.collection(brand).get().await()
+                PBMapper.mapperToPB(PBResult, response.documents.map {
+                    PBRes(
+                        address = it.get("address") as String,
+                        coordinates = it.get("coordinates") as Map<String, Double>,
+                        phoneNumber = it.get("phoneNumber") as String,
+                        subject = it.get("subject") as String
+                    )
+                }, PBResult.size, brand)
+            }
 
-            DataResult.success(PBlist)
+            DataResult.success(PBResult.toList())
 
         } catch (e: Exception) {
             DataResult.error(null, "서버와 연결오류")

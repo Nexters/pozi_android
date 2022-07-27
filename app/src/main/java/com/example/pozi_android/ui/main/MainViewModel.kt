@@ -1,12 +1,9 @@
 package com.example.pozi_android.ui.main
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.data.remote.network.Status
 import com.example.pozi_android.domain.repository.PBInfoRepository
-import com.example.pozi_android.domain.repository.TestRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,12 +17,12 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val pbinfoRepository: PBInfoRepository) :
     ViewModel() {
 
-    private val _PBListStateLiveData: MutableStateFlow<PBState> =
+    private val _PBListStateFlow: MutableStateFlow<PBState> =
         MutableStateFlow(PBState.noData)
-    val PBListStateLiveData: StateFlow<PBState> = _PBListStateLiveData.asStateFlow()
+    val PBListStateFlow: StateFlow<PBState> = _PBListStateFlow.asStateFlow()
 
     fun getCenterList() {
-        _PBListStateLiveData.value = PBState.Loading
+        _PBListStateFlow.value = PBState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
             val result = pbinfoRepository.getPBList()
@@ -34,13 +31,13 @@ class MainViewModel @Inject constructor(private val pbinfoRepository: PBInfoRepo
                 when (result.status) {
                     Status.SUCCESS -> {
                         if (!it.data!!.isNullOrEmpty()) {
-                            _PBListStateLiveData.value = PBState.Success(it.data)
+                            _PBListStateFlow.value = PBState.Success(it.data)
                         } else {
                             Log.d("임민규", "값이 없을때")
                         }
                     }
                     Status.ERROR -> {
-                        _PBListStateLiveData.value = PBState.Error
+                        _PBListStateFlow.value = PBState.Error
                     }
                 }
 
