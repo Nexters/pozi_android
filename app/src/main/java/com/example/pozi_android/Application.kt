@@ -19,5 +19,6 @@ class Application : Application() {
     companion object {
         var appContext: Context? = null
             private set
+
     }
 }
