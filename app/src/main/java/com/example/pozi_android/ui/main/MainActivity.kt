@@ -80,7 +80,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         val mapFragment = supportFragmentManager.run {
             // 옵션 설정
             val option = NaverMapOptions().mapType(NaverMap.MapType.Basic)
-                .camera(CameraPosition(LatLng(37.530039, 126.926209), 16.0))
+                .camera(CameraPosition(LatLng(37.530039, 126.926209), 15.0))
                 .locationButtonEnabled(false)
             findFragmentById(R.id.mainmap) as MapFragment?
                 ?: MapFragment.newInstance(option)
@@ -123,6 +123,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
         this.naverMap.uiSettings.isCompassEnabled = false
         this.naverMap.uiSettings.isZoomControlEnabled = false
+        this.naverMap.uiSettings.isScaleBarEnabled = false
+        this.naverMap.uiSettings.isLogoClickEnabled = false
 
         viewModel.getCenterList()
 
@@ -213,6 +215,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 onClickListener = this@MainActivity
                 isHideCollidedSymbols = true
                 isIconPerspectiveEnabled = true
+                width = 155
+                height = 170
                 // 아이콘 설정
                 icon = when {
                     it.brand.contains("인생네컷") -> {
@@ -227,6 +231,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         }
                     }
                 }
+                captionMinZoom = 15.0
 
             }
         }

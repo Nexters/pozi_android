@@ -1,5 +1,6 @@
 package com.example.pozi_android.data.repository.api
 
+import android.util.Log
 import com.example.pozi_android.data.remote.network.DataResult
 import com.example.pozi_android.data.remote.spec.PBRes
 import com.example.pozi_android.domain.entity.PB
@@ -16,12 +17,13 @@ class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
 ) : PBInfoRepository { //flow 써야하기 함
-    val brandlist = listOf("인생네컷", "포토매틱", "포토이즘-box", "포토이즘-colored", "포토이즘-studio")
+    val brandlist = listOf("all")
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         return@withContext try {
             val PBResult: MutableList<PB> = mutableListOf()
             for (brand in brandlist) {
                 val response: QuerySnapshot = firestore.collection(brand).get().await()
+                //Log.d("asd",response.documents.size.toString())
                 PBMapper.mapperToPB(PBResult, response.documents.map {
                     PBRes(
                         address = it.get("address") as String,
