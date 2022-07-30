@@ -1,13 +1,17 @@
 package com.example.pozi_android.ui.main
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.databinding.ActivityMainBinding
@@ -28,6 +32,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -73,7 +80,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         val mapFragment = supportFragmentManager.run {
             // 옵션 설정
             val option = NaverMapOptions().mapType(NaverMap.MapType.Basic)
-                .camera(CameraPosition(LatLng(37.530039, 126.926209), 16.0))
+                .camera(CameraPosition(LatLng(37.530039, 126.926209), 15.0))
                 .locationButtonEnabled(false)
             findFragmentById(R.id.mainmap) as MapFragment?
                 ?: MapFragment.newInstance(option)
@@ -114,11 +121,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         this.naverMap = map.apply {
             binding.btnLocation.map = this
         }
+        this.naverMap.uiSettings.isCompassEnabled = false
+        this.naverMap.uiSettings.isZoomControlEnabled = false
+        this.naverMap.uiSettings.isScaleBarEnabled = false
+        this.naverMap.uiSettings.isLogoClickEnabled = false
 
         viewModel.getCenterList()
 
         lifecycleScope.launch {
-            viewModel.PBListStateFlow.collect{ uiState->
+            viewModel.PBListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
@@ -164,9 +175,35 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     with(naverMap) {
                         naverMap.moveCamera(cameraUpdate)
                         locationTrackingMode = LocationTrackingMode.Follow
+                        binding.locationTxt.run {
+                            text = getAddress(
+                                currentLocation!!.latitude,
+                                currentLocation!!.longitude
+                            )
+                        }
                     }
                 }
             }
+    }
+
+    fun getAddress(lat: Double, lng: Double): String {
+        val geoCoder = Geocoder(this,Locale.KOREA)
+        val address: ArrayList<Address>
+        var addressResult = "주소를 가져 올 수 없습니다."
+        try {
+            address = geoCoder.getFromLocation(lat, lng, 1) as ArrayList<Address>
+            if (address.size > 0) {
+                // 주소 받아오기
+                val currentLocationAddress = address[0].getAddressLine(0)
+                    .toString()
+                addressResult = currentLocationAddress
+
+            }
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return addressResult
     }
 
     //databinding 하면 좋겠음
@@ -178,13 +215,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 onClickListener = this@MainActivity
                 isHideCollidedSymbols = true
                 isIconPerspectiveEnabled = true
+                width = 155
+                height = 170
                 // 아이콘 설정
                 icon = when {
                     it.brand.contains("인생네컷") -> {
-                        OverlayImage.fromResource(R.drawable.lifefourcut)
+                        OverlayImage.fromResource(R.drawable.lifefourcut_off)
                     }
                     it.brand.contains("포토매틱") -> {
-                        OverlayImage.fromResource(R.drawable.photomatic)
+                        OverlayImage.fromResource(R.drawable.photomatic_off)
                     }
                     else -> {
                         MarkerIcons.BLACK.also {
@@ -192,6 +231,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         }
                     }
                 }
+                captionMinZoom = 15.0
+
             }
         }
         CoroutineScope(Dispatchers.Main).launch {
