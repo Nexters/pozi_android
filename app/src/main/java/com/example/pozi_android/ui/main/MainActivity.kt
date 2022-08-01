@@ -1,7 +1,6 @@
 package com.example.pozi_android.ui.main
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -11,7 +10,6 @@ import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.databinding.ActivityMainBinding
@@ -134,6 +132,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
                         CreateMarker(markers, uiState.data)
+                        Log.d("asd",uiState.data.toString())
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -219,10 +218,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 height = 170
                 // 아이콘 설정
                 icon = when {
-                    it.brand.contains("인생네컷") -> {
+                    it.brandName.contains("인생네컷") -> {
                         OverlayImage.fromResource(R.drawable.lifefourcut_off)
                     }
-                    it.brand.contains("포토매틱") -> {
+                    it.brandName.contains("포토매틱") -> {
                         OverlayImage.fromResource(R.drawable.photomatic_off)
                     }
                     else -> {
@@ -231,7 +230,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         }
                     }
                 }
-                captionMinZoom = 15.0
 
             }
         }

@@ -17,22 +17,18 @@ class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
 ) : PBInfoRepository { //flow 써야하기 함
-    val brandlist = listOf("all")
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         return@withContext try {
-            val PBResult: MutableList<PB> = mutableListOf()
-            for (brand in brandlist) {
-                val response: QuerySnapshot = firestore.collection(brand).get().await()
-                //Log.d("asd",response.documents.size.toString())
-                PBMapper.mapperToPB(PBResult, response.documents.map {
-                    PBRes(
-                        address = it.get("address") as String,
-                        coordinates = it.get("coordinates") as Map<String, Double>,
-                        phoneNumber = it.get("phoneNumber") as String,
-                        subject = it.get("subject") as String
-                    )
-                }, PBResult.size, brand)
-            }
+            val response: QuerySnapshot = firestore.collection("all").get().await()
+            val PBResult = PBMapper.mapperToPB(response.documents.map {
+                PBRes(
+                    address = it.get("address") as String,
+                    coordinates = it.get("coordinates") as Map<String, Double>,
+                    phoneNumber = it.get("phoneNumber") as String,
+                    subject = it.get("subject") as String,
+                    brandName = it.get("brandName") as String
+                )
+            })
 
             DataResult.success(PBResult.toList())
 

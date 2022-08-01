@@ -1,6 +1,5 @@
 package com.example.pozi_android.di
 
-import com.example.pozi_android.data.remote.network.RetrofitInterface
 import com.example.pozi_android.data.repository.api.PBInfoRepositoryImpl
 import com.example.pozi_android.domain.repository.PBInfoRepository
 import com.google.firebase.firestore.FirebaseFirestore

@@ -6,20 +6,23 @@ import com.example.pozi_android.domain.entity.PB
 
 object PBMapper {
 
-    fun mapperToPB(PBResult: MutableList<PB>, pbres: List<PBRes>, id: Int, brand: String) {
-        var id: Int = id
-        pbres.forEach { it ->
-            PBResult.add(
+    fun mapperToPB(PBResult: List<PBRes>): List<PB> {
+        var id: Int = 0
+        val pbres: MutableList<PB> = mutableListOf()
+        PBResult.forEach { it ->
+            pbres.add(
                 PB(
                     id = id,
                     address = it.address,
                     _latitude = it.coordinates.get("_latitude")!!,
                     _longitude = it.coordinates.get("_longitude")!!,
                     subject = it.subject,
-                    brand = brand
+                    brandName = it.brandName
                 )
             )
             id += 1
         }
+        Log.d("asd",pbres.toList().toString())
+        return pbres.toList()
     }
 }

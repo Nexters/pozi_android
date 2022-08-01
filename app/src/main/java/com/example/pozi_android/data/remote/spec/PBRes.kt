@@ -4,5 +4,6 @@ data class PBRes(
     var address: String,
     var coordinates: Map<String, Double>,
     var phoneNumber: String,
-    var subject: String
+    var subject: String,
+    var brandName: String
 )

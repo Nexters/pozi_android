@@ -1,7 +1,6 @@
 package com.example.pozi_android.di
 
 import com.example.pozi_android.BuildConfig
-import com.example.pozi_android.data.remote.network.RetrofitInterface
 import com.example.pozi_android.data.remote.url.LocationsUrl
 import dagger.Module
 import dagger.Provides
@@ -42,10 +41,5 @@ object ApiModule {
             .build()
     }
 
-    @Singleton
-    @Provides
-    fun provideApiService(retrofit: Retrofit): RetrofitInterface {
-        return retrofit.create(RetrofitInterface::class.java)
-    }
 
 }

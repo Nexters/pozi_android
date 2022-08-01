@@ -6,5 +6,5 @@ data class PB(
     val _latitude: Double,
     val _longitude: Double,
     val subject: String,
-    val brand: String
+    val brandName: String
 )
