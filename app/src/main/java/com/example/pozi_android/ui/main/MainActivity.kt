@@ -22,7 +22,6 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
-import com.example.pozi_android.widget.HouseViewPagerAdapter
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     private val viewPager: ViewPager2 by lazy { //이거임
         findViewById(R.id.ViewPager)
     }
-    private val viewPagerAdapter = HouseViewPagerAdapter()
+    private val viewPagerAdapter = MainPBInfoPagerAdapter()
 
     override fun initView() {
         attachFragmentmanager()
@@ -132,7 +131,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
                         CreateMarker(markers, uiState.data)
-                        Log.d("asd",uiState.data.toString())
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -185,6 +183,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
     }
 
+    //usecase,repository 에서 결과값을 보내주는 느낌이 좋은듯 -> 이창
     fun getAddress(lat: Double, lng: Double): String {
         val geoCoder = Geocoder(this,Locale.KOREA)
         val address: ArrayList<Address>

@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="PB"
+            type="com.example.pozi_android.domain.entity.PB" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -31,6 +33,7 @@
 
             <TextView
                 android:id="@+id/nameTextView"
+                app:settext = "@{PB.subject}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -46,6 +49,7 @@
 
             <TextView
                 android:id="@+id/addressTextView"
+                app:settext = "@{PB.address}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"

@@ -1,4 +1,4 @@
-package com.example.pozi_android.widget
+package com.example.pozi_android.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,32 +8,26 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.R
+import com.example.pozi_android.databinding.ItemPhotoboothDetailViewpagerBinding
 import com.example.pozi_android.domain.entity.PB
 
-class HouseViewPagerAdapter :
-    ListAdapter<PB, HouseViewPagerAdapter.ItemViewHolder>(differ) {
+class MainPBInfoPagerAdapter :
+    ListAdapter<PB, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    inner class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-
-        fun bind(PB: PB) {
-            val nameTextView = view.findViewById<TextView>(R.id.nameTextView)
-            val priceTextView = view.findViewById<TextView>(R.id.addressTextView)
-
-            nameTextView.text = PB.subject
-            priceTextView.text = PB.address
-
+    inner class ItemViewHolder(val binding: ItemPhotoboothDetailViewpagerBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(pb: PB) {
+            binding.pb = pb
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return ItemViewHolder(
-            inflater.inflate(
-                R.layout.item_photobooth_detail_viewpager,
-                parent,
-                false
-            )
+        val binding = ItemPhotoboothDetailViewpagerBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
         )
+        return ItemViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
