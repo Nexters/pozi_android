@@ -1,6 +1,6 @@
 package com.example.pozi_android.domain.entity
 
-data class PBEntity(
+data class PB(
     val id: Int,
     val address: String,
     val _latitude: Double,

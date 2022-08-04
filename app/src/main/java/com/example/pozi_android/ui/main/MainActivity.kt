@@ -7,13 +7,13 @@ import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.activity.viewModels
-import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
-import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.domain.entity.PB
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,8 +21,8 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
-import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -173,10 +172,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         naverMap.moveCamera(cameraUpdate)
                         locationTrackingMode = LocationTrackingMode.Follow
                         binding.locationTxt.run {
-                            viewModel.Geopoint(
-                                currentLocation!!.latitude,
-                                currentLocation!!.longitude
-                            )
                             text = getAddress(
                                 currentLocation!!.latitude,
                                 currentLocation!!.longitude
@@ -209,7 +204,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     //databinding 하면 좋겠음
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBEntity>) {
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it._latitude, it._longitude)
@@ -243,16 +238,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        private const val TAG = "MainActivity"
-    }
-
     override fun onClick(overly: Overlay): Boolean {
         val selectedModel = viewPagerAdapter.currentList.firstOrNull {
             it.id == overly.tag
         }
-
         selectedModel?.let {
             val position = viewPagerAdapter.currentList.indexOf(it)
             viewPager.currentItem = position
@@ -261,4 +250,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         return true
     }
 
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        private const val TAG = "MainActivity"
+    }
 }

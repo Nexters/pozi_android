@@ -1,10 +1,10 @@
 package com.example.pozi_android.ui.main
 
-import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.domain.entity.PB
 
 sealed class PBState {
     object Loading : PBState()
-    object noData : PBState()
-    data class Success(val data: List<PBEntity>) : PBState()
+    object NoData : PBState()
+    data class Success(val data: List<PB>) : PBState()
     object Error : PBState()
 }
