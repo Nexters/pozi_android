@@ -1,8 +1,6 @@
 package com.example.pozi_android.data.repository.api
 
-import android.util.Log
-import com.example.pozi_android.data.remote.network.DataResult
-import com.example.pozi_android.data.remote.spec.PBRes
+import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.entity.PB
 import com.example.pozi_android.domain.mapper.PBMapper
 import com.example.pozi_android.domain.repository.PBInfoRepository
@@ -16,24 +14,21 @@ import kotlinx.coroutines.withContext
 class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
-) : PBInfoRepository { //flow 써야하기 함
+) : PBInfoRepository {
+
     override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
         return@withContext try {
             val response: QuerySnapshot = firestore.collection("all").get().await()
-            val PBResult = PBMapper.mapperToPB(response.documents.map {
-                PBRes(
-                    address = it.get("address") as String,
-                    coordinates = it.get("coordinates") as Map<String, Double>,
-                    phoneNumber = it.get("phoneNumber") as String,
-                    subject = it.get("subject") as String,
-                    brandName = it.get("brandName") as String
-                )
-            })
 
-            DataResult.success(PBResult.toList())
+            var id = 0
+            val PBList: List<PB> = response.documents.map {
+                PBMapper.mapToEntity(id++, it)
+            }
+
+            DataResult.Success(PBList)
 
         } catch (e: Exception) {
-            DataResult.error(null, "서버와 연결오류")
+            DataResult.Error("서버와 연결오류")
         }
     }
 }

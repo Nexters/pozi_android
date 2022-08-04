@@ -1,28 +1,16 @@
 package com.example.pozi_android.domain.mapper
 
-import android.util.Log
-import com.example.pozi_android.data.remote.spec.PBRes
 import com.example.pozi_android.domain.entity.PB
+import com.google.firebase.firestore.DocumentSnapshot
 
 object PBMapper {
-
-    fun mapperToPB(PBResult: List<PBRes>): List<PB> {
-        var id: Int = 0
-        val pbres: MutableList<PB> = mutableListOf()
-        PBResult.forEach { it ->
-            pbres.add(
-                PB(
-                    id = id,
-                    address = it.address,
-                    _latitude = it.coordinates.get("_latitude")!!,
-                    _longitude = it.coordinates.get("_longitude")!!,
-                    subject = it.subject,
-                    brandName = it.brandName
-                )
-            )
-            id += 1
-        }
-        Log.d("asd",pbres.toList().toString())
-        return pbres.toList()
-    }
+    fun mapToEntity(id: Int, snap: DocumentSnapshot): PB =
+        PB(
+            id = id,
+            address = snap.get("address") as String,
+            _latitude = (snap.get("coordinates") as Map<String, Double>).get("_latitude") as Double,
+            _longitude = (snap.get("coordinates") as Map<String, Double>).get("_longitude") as Double,
+            subject = snap.get("subject") as String,
+            brandName = snap.get("brandName") as String
+        )
 }
