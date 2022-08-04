@@ -6,14 +6,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.databinding.ItemPhotoboothDetailViewpagerBinding
-import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.domain.entity.PB
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<PBEntity, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<PB, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
     inner class ItemViewHolder(val binding: ItemPhotoboothDetailViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(pbEntity: PBEntity) {
+        fun bind(pbEntity: PB) {
             binding.pb = pbEntity
         }
     }
@@ -33,12 +33,12 @@ class MainPBInfoPagerAdapter :
 
     companion object {
 
-        val differ = object : DiffUtil.ItemCallback<PBEntity>() {
-            override fun areItemsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
+        val differ = object : DiffUtil.ItemCallback<PB>() {
+            override fun areItemsTheSame(oldItem: PB, newItem: PB): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
+            override fun areContentsTheSame(oldItem: PB, newItem: PB): Boolean {
                 return oldItem == newItem
             }
 

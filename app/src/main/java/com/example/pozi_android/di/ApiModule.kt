@@ -1,7 +1,6 @@
 package com.example.pozi_android.di
 
 import com.example.pozi_android.BuildConfig
-import com.example.pozi_android.data.remote.spec.address.GeoService
 import com.example.pozi_android.data.remote.url.LocationsUrl
 import dagger.Module
 import dagger.Provides
@@ -41,12 +40,4 @@ object ApiModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    @Singleton
-    @Provides
-    fun provideGeoService(retrofit: Retrofit): GeoService {
-        return retrofit.create(GeoService::class.java)
-    }
-
-
 }
