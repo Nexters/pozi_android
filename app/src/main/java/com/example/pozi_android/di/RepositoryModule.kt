@@ -1,7 +1,10 @@
 package com.example.pozi_android.di
 
-import com.example.pozi_android.data.repository.api.PBInfoRepositoryImpl
-import com.example.pozi_android.domain.repository.PBInfoRepository
+import com.example.pozi_android.data.remote.spec.address.GeoService
+import com.example.pozi_android.data.repository.geo.GeoRepositoryImpl
+import com.example.pozi_android.data.repository.pb.PBInfoRepositoryImpl
+import com.example.pozi_android.domain.repository.geo.GeoRepository
+import com.example.pozi_android.domain.repository.pb.PBInfoRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -20,4 +23,12 @@ object RepositoryModule {
         @DispatcherModule.IoDispatcher ioDispatcher: CoroutineDispatcher,
         firestore: FirebaseFirestore
     ): PBInfoRepository = PBInfoRepositoryImpl(ioDispatcher, firestore)
+
+    @Singleton
+    @Provides
+    fun provideGeoRepository(
+        api: GeoService,
+        @DispatcherModule.IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): GeoRepository = GeoRepositoryImpl(api, ioDispatcher)
+
 }

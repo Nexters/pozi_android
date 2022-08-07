@@ -24,6 +24,7 @@ android {
         buildConfigField "String", "Client_ID", project.properties["X_NCP_APIGW_API_KEY_ID"] ?: "\"NOT_FOUND\""
         buildConfigField "String", "Client_Secret", project.properties["X_NCP_APIGW_API_KEY"] ?: "\"NOT_FOUND\""
         manifestPlaceholders = [Naver_Client_ID: X_NCP_APIGW_API_KEY_ID_MANIFEST]
+
     }
 
     buildTypes {

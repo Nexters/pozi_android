@@ -1,23 +1,20 @@
 package com.example.pozi_android.ui.main
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPhotoboothDetailViewpagerBinding
-import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.entity.PBEntity
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<PB, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<PBEntity, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
     inner class ItemViewHolder(val binding: ItemPhotoboothDetailViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(pb: PB) {
-            binding.pb = pb
+        fun bind(pbEntity: PBEntity) {
+            binding.pb = pbEntity
         }
     }
 
@@ -36,12 +33,12 @@ class MainPBInfoPagerAdapter :
 
     companion object {
 
-        val differ = object : DiffUtil.ItemCallback<PB>() {
-            override fun areItemsTheSame(oldItem: PB, newItem: PB): Boolean {
+        val differ = object : DiffUtil.ItemCallback<PBEntity>() {
+            override fun areItemsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: PB, newItem: PB): Boolean {
+            override fun areContentsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
                 return oldItem == newItem
             }
 

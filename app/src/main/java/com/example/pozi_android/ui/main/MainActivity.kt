@@ -13,7 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.databinding.ActivityMainBinding
-import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.entity.PBEntity
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -173,6 +173,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         naverMap.moveCamera(cameraUpdate)
                         locationTrackingMode = LocationTrackingMode.Follow
                         binding.locationTxt.run {
+                            viewModel.Geopoint(
+                                currentLocation!!.latitude,
+                                currentLocation!!.longitude
+                            )
                             text = getAddress(
                                 currentLocation!!.latitude,
                                 currentLocation!!.longitude
@@ -185,7 +189,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     //usecase,repository 에서 결과값을 보내주는 느낌이 좋은듯 -> 이창
     fun getAddress(lat: Double, lng: Double): String {
-        val geoCoder = Geocoder(this,Locale.KOREA)
+        val geoCoder = Geocoder(this, Locale.KOREA)
         val address: ArrayList<Address>
         var addressResult = "주소를 가져 올 수 없습니다."
         try {
@@ -205,7 +209,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     //databinding 하면 좋겠음
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBEntity>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it._latitude, it._longitude)

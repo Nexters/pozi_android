@@ -6,7 +6,7 @@
     <data>
         <variable
             name="PB"
-            type="com.example.pozi_android.domain.entity.PB" />
+            type="com.example.pozi_android.domain.entity.PBEntity" />
     </data>
 
     <androidx.cardview.widget.CardView

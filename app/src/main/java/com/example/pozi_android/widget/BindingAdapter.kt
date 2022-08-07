@@ -8,11 +8,7 @@ import androidx.databinding.BindingAdapter
 import java.io.IOException
 import java.util.*
 
-object BindingAdapter {
-
-    @JvmStatic
-    @BindingAdapter("settext")
-    fun setText(view: TextView, text: String) {
-        view.text = text
-    }
+@BindingAdapter("settext")
+fun setText(view: TextView, text: String) {
+    view.text = text
 }
