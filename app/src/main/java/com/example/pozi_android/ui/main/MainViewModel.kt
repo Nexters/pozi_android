@@ -1,29 +1,23 @@
 package com.example.pozi_android.ui.main
 
-import android.content.Context
-import android.location.Address
-import android.location.Geocoder
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.data.remote.network.Status
-import com.example.pozi_android.domain.repository.PBInfoRepository
+import com.example.pozi_android.domain.repository.geo.GeoRepository
+import com.example.pozi_android.domain.repository.pb.PBInfoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.IOException
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val pbinfoRepository: PBInfoRepository
+    private val pbinfoRepository: PBInfoRepository,
+    private val geoRepository: GeoRepository
 ) :
     ViewModel() {
     private val _PBListStateFlow: MutableStateFlow<PBState> =
@@ -53,6 +47,24 @@ class MainViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun Geopoint(lat: Double, lon: Double) {
+        CoroutineScope(Dispatchers.IO).launch {
+            geoRepository.test(lat,lon)
+            val result = geoRepository.getAdressInfo(lat, lon)
+            result.let {
+                when (result.status) {
+                    Status.SUCCESS -> {
+                        val rr = it.data
+                        Log.d("민규민규2", rr.toString())
+                    }
+                    Status.ERROR -> {
+                        Log.d("민규민규", "오류")
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -1,11 +1,10 @@
-package com.example.pozi_android.data.repository.api
+package com.example.pozi_android.data.repository.pb
 
-import android.util.Log
 import com.example.pozi_android.data.remote.network.DataResult
 import com.example.pozi_android.data.remote.spec.PBRes
-import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.entity.PBEntity
 import com.example.pozi_android.domain.mapper.PBMapper
-import com.example.pozi_android.domain.repository.PBInfoRepository
+import com.example.pozi_android.domain.repository.pb.PBInfoRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,7 +16,7 @@ class PBInfoRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher,
     private val firestore: FirebaseFirestore
 ) : PBInfoRepository { //flow 써야하기 함
-    override suspend fun getPBList(): DataResult<List<PB>> = withContext(ioDispatcher) {
+    override suspend fun getPBList(): DataResult<List<PBEntity>> = withContext(ioDispatcher) {
         return@withContext try {
             val response: QuerySnapshot = firestore.collection("all").get().await()
             val PBResult = PBMapper.mapperToPB(response.documents.map {

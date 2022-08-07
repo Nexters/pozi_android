@@ -2,16 +2,16 @@ package com.example.pozi_android.domain.mapper
 
 import android.util.Log
 import com.example.pozi_android.data.remote.spec.PBRes
-import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.entity.PBEntity
 
 object PBMapper {
 
-    fun mapperToPB(PBResult: List<PBRes>): List<PB> {
+    fun mapperToPB(PBResult: List<PBRes>): List<PBEntity> {
         var id: Int = 0
-        val pbres: MutableList<PB> = mutableListOf()
+        val pbres: MutableList<PBEntity> = mutableListOf()
         PBResult.forEach { it ->
             pbres.add(
-                PB(
+                PBEntity(
                     id = id,
                     address = it.address,
                     _latitude = it.coordinates.get("_latitude")!!,
