@@ -19,10 +19,20 @@ class MainPBInfoPagerAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+<<<<<<< HEAD:app/src/main/java/com/example/pozi_android/ui/main/MainPBInfoPagerAdapter.kt
         val binding = ItemPhotoboothDetailViewpagerBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
+=======
+        val inflater = LayoutInflater.from(parent.context)
+        return ItemViewHolder(
+            inflater.inflate(
+                R.layout.item_pb_viewpager,
+                parent,
+                false
+            )
+>>>>>>> fb4e648 ([25-PBWigetUI]):app/src/main/java/com/example/pozi_android/widget/HouseViewPagerAdapter.kt
         )
         return ItemViewHolder(binding)
     }
