@@ -29,7 +29,7 @@ class HouseViewPagerAdapter :
         val inflater = LayoutInflater.from(parent.context)
         return ItemViewHolder(
             inflater.inflate(
-                R.layout.item_photobooth_detail_viewpager,
+                R.layout.item_pb_viewpager,
                 parent,
                 false
             )
