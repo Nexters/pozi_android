@@ -1,5 +1,6 @@
 package com.example.pozi_android.data.repository.api
 
+import android.util.Log
 import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.entity.PB
 import com.example.pozi_android.domain.mapper.PBMapper
@@ -24,6 +25,7 @@ class PBInfoRepositoryImpl(
             val PBList: List<PB> = response.documents.map {
                 PBMapper.mapToEntity(id++, it)
             }
+
 
             DataResult.Success(PBList)
 
