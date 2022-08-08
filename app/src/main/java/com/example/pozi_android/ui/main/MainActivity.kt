@@ -6,9 +6,11 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
@@ -21,10 +23,18 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
+<<<<<<< HEAD
+=======
+import com.naver.maps.map.util.FusedLocationSource
+import com.example.pozi_android.widget.HouseViewPagerAdapter
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
+>>>>>>> 761ac66 ([27-mylocation])
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -35,7 +45,7 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
-    OnMapReadyCallback, Overlay.OnClickListener {
+    OnMapReadyCallback, Overlay.OnClickListener, PermissionListener {
 
     private val viewModel by viewModels<MainViewModel>()
     private lateinit var locationSource: FusedLocationSource
@@ -48,8 +58,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     private val viewPagerAdapter = MainPBInfoPagerAdapter()
 
     override fun initView() {
+        permissionCheck()
         attachFragmentmanager()
         settingViewpager()
+        currentimage.setOnClickListener {
+            currentAddress()
+        }
     }
 
     private fun settingViewpager() {
@@ -86,37 +100,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
 
         mapFragment.getMapAsync(this)
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (locationSource.onRequestPermissionsResult(
-                requestCode, permissions,
-                grantResults
-            )
-        ) {
-            if (!locationSource.isActivated) {
-                Log.d(TAG, "MainActivity - onRequestPermissionsResult 권한 거부됨")
-                naverMap.locationTrackingMode = LocationTrackingMode.None
-            } else {
-                Log.d(TAG, "MainActivity - onRequestPermissionsResult 권한 승인됨")
-                naverMap.locationTrackingMode = LocationTrackingMode.Follow
-            }
-            return
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
         map.locationSource = locationSource
-        this.naverMap = map.apply {
-            binding.btnLocation.map = this
-        }
+        this.naverMap = map
         this.naverMap.uiSettings.isCompassEnabled = false
         this.naverMap.uiSettings.isZoomControlEnabled = false
         this.naverMap.uiSettings.isScaleBarEnabled = false
@@ -130,6 +119,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
                         CreateMarker(markers, uiState.data)
+<<<<<<< HEAD
+=======
+                        Log.d("asd", uiState.data.toString())
+>>>>>>> 761ac66 ([27-mylocation])
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -139,6 +132,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             }
         }
 
+        currentAddress()
+    }
+
+    fun currentAddress() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -150,7 +147,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             return
         }
 
-        // 사용자 현재 위치 받아오기
         var currentLocation: Location?
         fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
@@ -250,8 +246,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         return true
     }
 
+<<<<<<< HEAD
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         private const val TAG = "MainActivity"
     }
+=======
+    private fun permissionCheck() {
+        TedPermission.create()
+            .setPermissionListener(this)
+            .setPermissions(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            .check()
+        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
+    }
+
+    override fun onPermissionGranted() {
+        Toast.makeText(this@MainActivity, "위치 정보 제공되었습니다", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+        Toast.makeText(this@MainActivity, "위치 정보 제공이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+    }
+
+>>>>>>> 761ac66 ([27-mylocation])
 }
