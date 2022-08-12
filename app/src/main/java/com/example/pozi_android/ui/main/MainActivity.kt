@@ -58,9 +58,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-
+        mapView.getMapAsync(this)
         permissionCheck()
-        attachMapmanager()
+        
         settingViewpager()
         currentimage.setOnClickListener {
             currentAddress()
@@ -80,9 +80,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         })
     }
 
-    private fun attachMapmanager() {
-        mapView.getMapAsync(this)
-    }
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
@@ -91,10 +88,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         this.naverMap = map
         map.locationSource = locationSource
-        this.naverMap.uiSettings.isCompassEnabled = false
-        this.naverMap.uiSettings.isZoomControlEnabled = false
-        this.naverMap.uiSettings.isScaleBarEnabled = false
-        this.naverMap.uiSettings.isLogoClickEnabled = false
 
         viewModel.getCenterList()
 
@@ -104,7 +97,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     is PBState.Success -> {
                         val markers = mutableListOf<Marker>()
                         CreateMarker(markers, uiState.data)
-                        Log.d("asd", uiState.data.toString())
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {

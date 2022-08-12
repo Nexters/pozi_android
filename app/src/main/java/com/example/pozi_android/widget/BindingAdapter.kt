@@ -25,5 +25,15 @@ fun moveCamera(mapView: MapView, latLng: LatLng?) {
                 .animate(CameraAnimation.Easing)
             naverMap.moveCamera(cameraUpdate)
         }
+    } else {
+        mapView.getMapAsync { naverMap ->
+            val cameraUpdate = CameraUpdate.scrollAndZoomTo(LatLng(37.497885, 127.027512), 15.0)
+                .animate(CameraAnimation.Easing)
+            naverMap.moveCamera(cameraUpdate)
+            naverMap.uiSettings.isCompassEnabled = false
+            naverMap.uiSettings.isZoomControlEnabled = false
+            naverMap.uiSettings.isScaleBarEnabled = false
+            naverMap.uiSettings.isLogoClickEnabled = false
+        }
     }
 }
