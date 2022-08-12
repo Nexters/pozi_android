@@ -1,8 +1,12 @@
 package com.example.pozi_android.ui.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListUseCase
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.NaverMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +23,12 @@ class MainViewModel @Inject constructor(
 
     private val _PBListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
     val PBListStateFlow: StateFlow<PBState> = _PBListStateFlow.asStateFlow()
+
+    private val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
+    val wigetVisibility: LiveData<Boolean> = _wigetVisibility
+
+    private val _moveCamera: MutableLiveData<LatLng> = MutableLiveData()
+    val moveCamera: LiveData<LatLng> = _moveCamera
 
     fun getCenterList() {
         _PBListStateFlow.value = PBState.Loading
@@ -37,4 +47,15 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    fun setMapClickListener(naverMap: NaverMap) =
+        naverMap.setOnMapClickListener { point, coord ->
+            _wigetVisibility.value = false
+        }
+
+    fun markerClickListener(latLng: LatLng) {
+        _moveCamera.value = latLng
+        _wigetVisibility.value = true
+    }
+
 }

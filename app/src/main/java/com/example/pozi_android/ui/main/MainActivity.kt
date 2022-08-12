@@ -11,11 +11,10 @@ import androidx.activity.viewModels
 import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.databinding.ActivityMainBinding
-import com.example.pozi_android.domain.entity.PB
+import com.example.pozi_android.domain.entity.PBEntity
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -24,7 +23,6 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
-import com.example.pozi_android.widget.HouseViewPagerAdapter
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.naver.maps.map.overlay.OverlayImage
@@ -46,17 +44,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     private val viewModel by viewModels<MainViewModel>()
     private lateinit var locationSource: FusedLocationSource
-    private lateinit var naverMap: NaverMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private val viewPager: ViewPager2 by lazy { //이거임
+    lateinit var naverMap: NaverMap
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val viewPager: ViewPager2 by lazy {
         findViewById(R.id.ViewPager)
     }
-    private val viewPagerAdapter = HouseViewPagerAdapter()
+    private val mapView: MapView by lazy {
+        findViewById(R.id.mainmap)
+    }
+
+    private val viewPagerAdapter = MainPBInfoPagerAdapter()
 
     override fun initView() {
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+
         permissionCheck()
-        attachFragmentmanager()
+        attachMapmanager()
         settingViewpager()
         currentimage.setOnClickListener {
             currentAddress()
@@ -67,42 +71,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
             //viewpager에서 바뀔때마다 카메라가 전환된다.
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-
                 val selectedPB = viewPagerAdapter.currentList[position]
-                val cameraUpdate =
-                    CameraUpdate.scrollTo(LatLng(selectedPB._latitude, selectedPB._longitude))
-                        .animate(CameraAnimation.Easing)
-
-                naverMap.moveCamera(cameraUpdate)
+                viewModel.markerClickListener(LatLng(selectedPB._latitude,selectedPB._longitude))
             }
-
         })
     }
 
-    private fun attachFragmentmanager() {
-        val mapFragment = supportFragmentManager.run {
-            // 옵션 설정
-            val option = NaverMapOptions().mapType(NaverMap.MapType.Basic)
-                .camera(CameraPosition(LatLng(37.530039, 126.926209), 15.0))
-                .locationButtonEnabled(false)
-            findFragmentById(R.id.mainmap) as MapFragment?
-                ?: MapFragment.newInstance(option)
-                    .also {
-                        beginTransaction().add(R.id.mainmap, it).commit()
-                    }
-        }
-
-        mapFragment.getMapAsync(this)
+    private fun attachMapmanager() {
+        mapView.getMapAsync(this)
     }
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
-        map.locationSource = locationSource
+
+        viewModel.setMapClickListener(map)
+
         this.naverMap = map
+        map.locationSource = locationSource
         this.naverMap.uiSettings.isCompassEnabled = false
         this.naverMap.uiSettings.isZoomControlEnabled = false
         this.naverMap.uiSettings.isScaleBarEnabled = false
@@ -128,6 +116,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         currentAddress()
     }
+
 
     fun currentAddress() {
         if (ActivityCompat.checkSelfPermission(
@@ -193,12 +182,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     //databinding 하면 좋겠음
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PB>) {
+    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBEntity>) {
         locations.forEach { it ->
             markers += Marker().apply {
                 position = LatLng(it._latitude, it._longitude)
                 tag = it.id
-                onClickListener = this@MainActivity
+                //onClickListener = this@MainActivity
                 isHideCollidedSymbols = true
                 isIconPerspectiveEnabled = true
                 width = 155
@@ -216,6 +205,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                             com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
                         }
                     }
+                }
+
+                setOnClickListener {
+                    viewModel.markerClickListener(LatLng(position.latitude, position.longitude))
+                    true
                 }
 
             }
