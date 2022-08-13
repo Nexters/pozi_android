@@ -2,6 +2,7 @@ package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.R
 import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.ui.main.MainViewModel
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage

@@ -28,7 +28,7 @@ class MainViewModel @Inject constructor(
     private val _PBListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
     val PBListStateFlow: StateFlow<PBState> = _PBListStateFlow.asStateFlow()
 
-    private val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
+    val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
     val wigetVisibility: LiveData<Boolean> = _wigetVisibility
 
     private val _moveCamera: MutableLiveData<LatLng> = MutableLiveData()

@@ -67,6 +67,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
+
     private fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
@@ -90,6 +91,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         map.locationSource = locationSource
 
         viewModel.getCenterList()
+
+        viewModel.markerList.observe(this){ markers->
+            markers.forEach {Marker ->
+                Marker.setOnClickListener{
+                    viewModel.markerClickListener(Marker.position)
+                    true
+                }
+            }
+//            CoroutineScope(Dispatchers.Main).launch {
+//                markers.forEach { marker ->
+//                    marker.map = naverMap
+//                }
+//            }
+
+        }
 
         lifecycleScope.launch {
             viewModel.PBListStateFlow.collect { uiState ->
