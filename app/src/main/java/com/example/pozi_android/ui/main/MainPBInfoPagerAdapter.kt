@@ -11,8 +11,17 @@ import com.example.pozi_android.domain.entity.PBEntity
 class MainPBInfoPagerAdapter :
     ListAdapter<PBEntity, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    inner class ItemViewHolder(val binding: ItemPbViewpagerBinding) :
+    var findLoadClickListener: ((PBEntity?) -> Unit)? = null
+
+    inner class ItemViewHolder(private val binding: ItemPbViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.findLoadButton.setOnClickListener {
+                findLoadClickListener?.invoke(binding.pb)
+            }
+        }
+
         fun bind(pbEntity: PBEntity) {
             binding.pb = pbEntity
         }
@@ -32,7 +41,6 @@ class MainPBInfoPagerAdapter :
     }
 
     companion object {
-
         val differ = object : DiffUtil.ItemCallback<PBEntity>() {
             override fun areItemsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
                 return oldItem.id == newItem.id
@@ -41,7 +49,6 @@ class MainPBInfoPagerAdapter :
             override fun areContentsTheSame(oldItem: PBEntity, newItem: PBEntity): Boolean {
                 return oldItem == newItem
             }
-
         }
     }
 }
