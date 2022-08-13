@@ -1,41 +1,39 @@
 package com.example.pozi_android.ui.main
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
-import com.example.pozi_android.R
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
+import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
 import com.example.pozi_android.domain.entity.PBEntity
 import com.example.pozi_android.ui.base.BaseActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.*
-import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.Overlay
-import com.naver.maps.map.util.FusedLocationSource
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
-import com.naver.maps.map.overlay.OverlayImage
-import com.naver.maps.map.util.MarkerIcons
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Overlay
+import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -53,7 +51,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         findViewById(R.id.mainmap)
     }
 
-    private val viewPagerAdapter = MainPBInfoPagerAdapter()
+    private val viewPagerAdapter = MainPBInfoPagerAdapter().apply {
+        findLoadClickListener = ::showMapAppList
+    }
 
     override fun initView() {
         binding.viewModel = viewModel
@@ -67,6 +67,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
+    private fun showMapAppList(pb: PBEntity?) {
+        if (pb == null) return
+        val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
+            naverImage.setOnClickListener {
+                val url = "nmap://route/walk?dlat=${pb._latitude}&dlng=${pb._longitude}&dname=${pb.brandName}"
+                executeMap(url)
+            }
+            kakaoImage.setOnClickListener {
+                val url = "kakaomap://route?ep=${pb._latitude},${pb._longitude}&by=FOOT"
+                executeMap(url)
+            }
+        }
+        BottomSheetDialog(this, R.style.AppBottomSheetDialogTheme).apply {
+            setContentView(binding.root)
+        }.show()
+    }
+
+    private fun executeMap(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {  // 만약 실행이 안된다면 (앱이 없다면)
+            Toast.makeText(this, "해당 앱이 설치되어 있지 않습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
@@ -76,7 +101,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val selectedPB = viewPagerAdapter.currentList[position]
-                viewModel.markerClickListener(LatLng(selectedPB._latitude,selectedPB._longitude))
+                viewModel.markerClickListener(LatLng(selectedPB._latitude, selectedPB._longitude))
             }
         })
     }
@@ -92,9 +117,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getCenterList()
 
-        viewModel.markerList.observe(this){ markers->
-            markers.forEach {Marker ->
-                Marker.setOnClickListener{
+        viewModel.markerList.observe(this) { markers ->
+            markers.forEach { Marker ->
+                Marker.setOnClickListener {
                     viewModel.markerClickListener(Marker.position)
                     true
                 }
@@ -104,7 +129,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 //                    marker.map = naverMap
 //                }
 //            }
-
         }
 
         lifecycleScope.launch {

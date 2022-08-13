@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="28dp"
+        app:behavior_hideable="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="26dp"
+            android:text="공유하기"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/naverImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="18dp"
+            android:src="@drawable/naver_map_logo"
+            app:layout_constraintEnd_toStartOf="@id/kakaoImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="네이버지도"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/naverImage"
+            app:layout_constraintStart_toStartOf="@id/naverImage"
+            app:layout_constraintTop_toBottomOf="@id/naverImage" />
+
+        <ImageView
+            android:id="@+id/kakaoImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="18dp"
+            android:src="@drawable/kakao_map_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/naverImage"
+            app:layout_constraintTop_toBottomOf="@id/title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="카카오맵"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/kakaoImage"
+            app:layout_constraintStart_toStartOf="@id/kakaoImage"
+            app:layout_constraintTop_toBottomOf="@id/kakaoImage" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
