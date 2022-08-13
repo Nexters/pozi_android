@@ -2,9 +2,12 @@ package com.example.pozi_android.widget
 
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.UiThread
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.gun0912.tedpermission.provider.TedPermissionProvider.context
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
@@ -45,7 +48,7 @@ fun moveCamera(mapView: MapView, latLng: LatLng?) {
 
 @BindingAdapter("attachMarker")
 fun attachMarker(mapView: MapView, markers: List<Marker>?) {
-    if(markers != null){
+    if (markers != null) {
         mapView.getMapAsync { naverMap ->
             CoroutineScope(Dispatchers.Main).launch {
                 markers.forEach { marker ->

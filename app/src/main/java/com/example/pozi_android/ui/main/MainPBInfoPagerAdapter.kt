@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
 import com.example.pozi_android.domain.entity.PBEntity
 
@@ -24,6 +25,15 @@ class MainPBInfoPagerAdapter :
 
         fun bind(pbEntity: PBEntity) {
             binding.pb = pbEntity
+            when (pbEntity.brandName) {
+                "포토매틱" -> binding.brandimage.setImageResource(R.drawable.brand_photomatic)
+                "하루필름" -> binding.brandimage.setImageResource(R.drawable.brand_harufilm)
+                "셀픽스" -> binding.brandimage.setImageResource(R.drawable.brand_selfixselfix)
+                "포토드링크" -> binding.brandimage.setImageResource(R.drawable.brand_photodrink)
+                "포토그레이" -> binding.brandimage.setImageResource(R.drawable.brand_photogray)
+                "포토이즘" -> binding.brandimage.setImageResource(R.drawable.brand_photoism)
+            }
+
         }
     }
 
