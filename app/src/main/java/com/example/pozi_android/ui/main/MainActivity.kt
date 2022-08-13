@@ -60,7 +60,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         binding.lifecycleOwner = this
         mapView.getMapAsync(this)
         permissionCheck()
-        
+
         settingViewpager()
         currentimage.setOnClickListener {
             currentAddress()
@@ -95,8 +95,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             viewModel.PBListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
-                        val markers = mutableListOf<Marker>()
-                        CreateMarker(markers, uiState.data)
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -171,46 +169,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             e.printStackTrace()
         }
         return addressResult
-    }
-
-    //databinding 하면 좋겠음
-    private fun CreateMarker(markers: MutableList<Marker>, locations: List<PBEntity>) {
-        locations.forEach { it ->
-            markers += Marker().apply {
-                position = LatLng(it._latitude, it._longitude)
-                tag = it.id
-                //onClickListener = this@MainActivity
-                isHideCollidedSymbols = true
-                isIconPerspectiveEnabled = true
-                width = 155
-                height = 170
-                // 아이콘 설정
-                icon = when {
-                    it.brandName.contains("인생네컷") -> {
-                        OverlayImage.fromResource(R.drawable.lifefourcut_off)
-                    }
-                    it.brandName.contains("포토매틱") -> {
-                        OverlayImage.fromResource(R.drawable.photomatic_off)
-                    }
-                    else -> {
-                        MarkerIcons.BLACK.also {
-                            com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
-                        }
-                    }
-                }
-
-                setOnClickListener {
-                    viewModel.markerClickListener(LatLng(position.latitude, position.longitude))
-                    true
-                }
-
-            }
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            markers.forEach { marker ->
-                marker.map = naverMap
-            }
-        }
     }
 
     companion object {
