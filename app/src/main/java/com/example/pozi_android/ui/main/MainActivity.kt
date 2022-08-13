@@ -119,16 +119,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.markerList.observe(this) { markers ->
             markers.forEach { Marker ->
-                Marker.setOnClickListener {
+                Marker.setOnClickListener { overly ->
                     viewModel.markerClickListener(Marker.position)
+                    val selectedModel = viewPagerAdapter.currentList.firstOrNull {
+                        it.id == overly.tag
+                    }
+                    selectedModel?.let {
+                        val position = viewPagerAdapter.currentList.indexOf(it)
+                        viewPager.currentItem = position
+                    }
                     true
                 }
             }
-//            CoroutineScope(Dispatchers.Main).launch {
-//                markers.forEach { marker ->
-//                    marker.map = naverMap
-//                }
-//            }
+
         }
 
         lifecycleScope.launch {

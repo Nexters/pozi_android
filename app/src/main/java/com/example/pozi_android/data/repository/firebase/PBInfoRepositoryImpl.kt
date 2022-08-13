@@ -1,4 +1,4 @@
-package com.example.pozi_android.data.repository.api
+package com.example.pozi_android.data.repository.firebase
 
 import android.util.Log
 import com.example.pozi_android.domain.entity.DataResult

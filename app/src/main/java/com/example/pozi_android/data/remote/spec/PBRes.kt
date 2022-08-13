@@ -1,9 +1,16 @@
 package com.example.pozi_android.data.remote.spec
 
+import com.google.gson.annotations.SerializedName
+
 data class PBRes(
-    var address: String,
-    var coordinates: Map<String, Double>,
-    var phoneNumber: String,
-    var subject: String,
-    var brandName: String
-)
+    @SerializedName("result")
+    val result: List<PB> = listOf()
+){
+    data class PB(
+        var brandName: String,
+        var subject: String,
+        var coordinates: Map<String, Double>,
+        var phoneNumber: String,
+        var address: String,
+    )
+}

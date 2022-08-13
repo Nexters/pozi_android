@@ -17,24 +17,27 @@ object MarkerMapper {
             isIconPerspectiveEnabled = true
             width = 155
             height = 170
-            icon = when {
-                entity.brandName.contains("포토매틱") -> {
+            icon = when (entity.brandName) {
+                "포토매틱" -> {
                     OverlayImage.fromResource(R.drawable.photomatic_off)
                 }
-                entity.brandName.contains("하루필름,") -> {
+                "하루필름" -> {
                     OverlayImage.fromResource(R.drawable.harufilm_off)
                 }
-                entity.brandName.contains("셀픽스") -> {
+                "셀픽스" -> {
                     OverlayImage.fromResource(R.drawable.selfix_off)
                 }
-                entity.brandName.contains("포토드링크") -> {
+                "포토드링크" -> {
                     OverlayImage.fromResource(R.drawable.photodrink_off)
                 }
-                entity.brandName.contains("포토그레이") -> {
+                "포토그레이" -> {
                     OverlayImage.fromResource(R.drawable.photogray_off)
                 }
-                entity.brandName.contains("포토이즘") -> {
+                "포토이즘" -> {
                     OverlayImage.fromResource(R.drawable.photoism_off)
+                }
+                "인생네컷" -> {
+                    OverlayImage.fromResource(R.drawable.lifefourcut_off)
                 }
                 else -> {
                     MarkerIcons.BLACK.also {
