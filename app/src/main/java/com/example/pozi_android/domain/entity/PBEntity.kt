@@ -6,5 +6,6 @@ data class PBEntity(
     val _latitude: Double,
     val _longitude: Double,
     val subject: String,
-    val brandName: String
+    val brandName: String,
+    val phoneNumber: String
 )
