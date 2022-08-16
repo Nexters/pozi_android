@@ -1,22 +1,10 @@
 package com.example.pozi_android.widget
 
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.example.pozi_android.R
-import com.example.pozi_android.domain.entity.CustomMarker
-import com.example.pozi_android.domain.mapper.MarkerMapper
-import com.example.pozi_android.ui.main.state.MarkerState
-import com.example.pozi_android.ui.main.state.PBState
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
-import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.OverlayImage
-import com.naver.maps.map.util.MarkerIcons
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @BindingAdapter("settext")
 fun setText(view: TextView, text: String) {

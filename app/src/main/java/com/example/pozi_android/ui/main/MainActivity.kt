@@ -61,37 +61,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        mapView.getMapAsync(this)
         permissionCheck()
+        mapView.getMapAsync(this)
         settingViewpager()
-        currentimage.setOnClickListener {
+        currentbutton.setOnClickListener {
             currentAddress()
-        }
-    }
-
-    private fun showMapAppList(pb: PBEntity?) {
-        if (pb == null) return
-        val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
-            naverImage.setOnClickListener {
-                val url = "nmap://route/walk?dlat=${pb._latitude}&dlng=${pb._longitude}&dname=${pb.brandName}"
-                executeMap(url)
-            }
-            kakaoImage.setOnClickListener {
-                val url = "kakaomap://route?ep=${pb._latitude},${pb._longitude}&by=FOOT"
-                executeMap(url)
-            }
-        }
-        BottomSheetDialog(this, R.style.AppBottomSheetDialogTheme).apply {
-            setContentView(binding.root)
-        }.show()
-    }
-
-    private fun executeMap(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-        } catch (e: Exception) {  // 만약 실행이 안된다면 (앱이 없다면)
-            Toast.makeText(this, "해당 앱이 설치되어 있지 않습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -112,15 +86,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     @UiThread
     override fun onMapReady(map: NaverMap) {
         viewModel.setMapClickListener(map)
-
+        currentAddress()
         this.naverMap = map
+        // 위치 추적 모드
         map.locationSource = locationSource
 
-        viewModel.getCenterList()
+        viewModel.getAllPlace()
 
-        viewModel.markerList.observe(this) { cmarkers ->
-            cmarkers.forEach { Cmarker ->
-                Cmarker.marker.setOnClickListener { overly ->
+        viewModel.markerList.observe(this) { places ->
+            places.forEach { place ->
+                place.marker.setOnClickListener { overly ->
                     val selectedModel = viewPagerAdapter.currentList.firstOrNull {
                         it.id == overly.tag
                     }
@@ -128,10 +103,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         val position = viewPagerAdapter.currentList.indexOf(it)
                         viewPager.currentItem = position
                     }
+                    viewModel.onPlaceClick(place)
                     true
                 }
                 CoroutineScope(Dispatchers.Main).launch {
-                    cmarkers.forEach { cmarker ->
+                    places.forEach { cmarker ->
                         cmarker.marker.map = naverMap
                     }
                 }
@@ -150,10 +126,34 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 }
             }
         }
-
-        currentAddress()
     }
 
+    private fun showMapAppList(pb: PBEntity?) {
+        if (pb == null) return
+        val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
+            naverImage.setOnClickListener {
+                val url =
+                    "nmap://route/walk?dlat=${pb._latitude}&dlng=${pb._longitude}&dname=${pb.brandName}"
+                executeMap(url)
+            }
+            kakaoImage.setOnClickListener {
+                val url = "kakaomap://route?ep=${pb._latitude},${pb._longitude}&by=FOOT"
+                executeMap(url)
+            }
+        }
+        BottomSheetDialog(this, R.style.AppBottomSheetDialogTheme).apply {
+            setContentView(binding.root)
+        }.show()
+    }
+
+    private fun executeMap(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {  // 만약 실행이 안된다면 (앱이 없다면)
+            Toast.makeText(this, "해당 앱이 설치되어 있지 않습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     fun currentAddress() {
         if (ActivityCompat.checkSelfPermission(
@@ -176,16 +176,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         isVisible = true
                         position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
                     }
-
-                    // 카메라 현재위치로 이동
-                    val cameraUpdate = CameraUpdate.scrollTo(
+                    viewModel.markerClickListener(
                         LatLng(
                             currentLocation!!.latitude,
                             currentLocation!!.longitude
                         )
                     )
                     with(naverMap) {
-                        naverMap.moveCamera(cameraUpdate)
                         locationTrackingMode = LocationTrackingMode.Follow
                         binding.locationTxt.run {
                             text = getAddress(

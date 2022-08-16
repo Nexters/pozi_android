@@ -1,7 +1,7 @@
 package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.R
-import com.example.pozi_android.domain.entity.CustomMarker
+import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.PBEntity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
@@ -9,7 +9,7 @@ import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.MarkerIcons
 
 object MarkerMapper {
-    fun entityToCustomMarker(entity: PBEntity): CustomMarker = CustomMarker(
+    fun entityToCustomMarker(entity: PBEntity): Place = Place(
         entityToMarker(entity),
         entity.address,
         entity.subject,
@@ -56,6 +56,8 @@ object MarkerMapper {
                     }
                 }
             }
-
+            setOnClickListener {
+                true
+            }
         }
 }
