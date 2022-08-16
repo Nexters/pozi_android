@@ -1,18 +1,18 @@
 package com.example.pozi_android.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.DataResult
-import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.domain.mapper.MarkerMapper
+import com.example.pozi_android.domain.mapper.PlaceMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListUseCase
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.util.PlaceUtil
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.overlay.Marker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,17 +27,14 @@ class MainViewModel @Inject constructor(
     private val getPBListUseCase: GetPhotoBoothListUseCase,
 ) : ViewModel() {
 
-    private val _PBListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
-    val PBListStateFlow: StateFlow<PBState> = _PBListStateFlow.asStateFlow()
+    private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
+    val placeListStateFlow: StateFlow<PBState> = _placeListStateFlow.asStateFlow()
 
-    val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
+    val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData() //private 해줘도 되는지 확인 하기
     val wigetVisibility: LiveData<Boolean> = _wigetVisibility
 
     private val _moveCamera: MutableLiveData<LatLng> = MutableLiveData()
     val moveCamera: LiveData<LatLng> = _moveCamera
-
-    private val _markerList: MutableLiveData<List<Place>> = MutableLiveData()
-    val markerList: LiveData<List<Place>> = _markerList
 
     private val _focusedPlace = MutableLiveData<Place?>()
     val focusedPlace: LiveData<Place?> = _focusedPlace
@@ -46,21 +43,17 @@ class MainViewModel @Inject constructor(
     val addressText: LiveData<String> = _addressText
 
     fun onPlaceClick(clickedPlace: Place): Boolean {
-        Log.d("다은",clickedPlace.brandName)
-        // 기존 focused place 클릭 -> do nothing
         if (_focusedPlace.value == clickedPlace) return true
-        Log.d("다은",clickedPlace.brandName + "1")
         setFocusedPlace(clickedPlace)
-
         return true
     }
 
-    private fun setFocusedPlace(place: Place) {
+    fun setFocusedPlace(place: Place) {
         PlaceUtil.loseFocus(_focusedPlace.value)
         PlaceUtil.getFocus(place)
-        Log.d("다은",_focusedPlace.value?.brandName + "2")
-        Log.d("다은",place.brandName + "3")
         _focusedPlace.value = place
+        _moveCamera.value = place.marker.position
+        _wigetVisibility.value = true
     }
 
     fun setMapClickListener(naverMap: NaverMap) =
@@ -68,24 +61,19 @@ class MainViewModel @Inject constructor(
             PlaceUtil.loseFocus(_focusedPlace.value)
         }
 
-    fun placesItemClick(place: Place) {
-        setFocusedPlace(place)
-    }
-
     fun getAllPlace() {
-        _PBListStateFlow.value = PBState.Loading
+        _placeListStateFlow.value = PBState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
             when (val result = getPBListUseCase()) {
                 is DataResult.Success -> {
-                    _PBListStateFlow.value = PBState.Success(result.data)
-                    attachMarkerList(result.data)
+                    _placeListStateFlow.value = PBState.Success(result.data)
                 }
                 is DataResult.NoData -> {
-                    _PBListStateFlow.value = PBState.NoData
+                    _placeListStateFlow.value = PBState.NoData
                 }
                 is DataResult.Error -> {
-                    _PBListStateFlow.value = PBState.Error
+                    _placeListStateFlow.value = PBState.Error
                 }
             }
 
@@ -93,16 +81,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun attachMarkerList(list: List<PBEntity>) {
-        val markerlist: List<Place> = list.map {
-            MarkerMapper.entityToCustomMarker(it)
-
+    fun clicklistnerMarker(placa: Place) {
+        placa.marker.setOnClickListener {
+            onPlaceClick(placa)
+            true
         }
-        _markerList.postValue(markerlist)
     }
 
-    fun markerClickListener(latLng: LatLng) {
-        _moveCamera.value = latLng
-        _wigetVisibility.value = true
+    fun attachMarker(list: List<Place>, mapView: MapView) {
+        mapView.getMapAsync { naverMap ->
+            list.forEach {
+                clicklistnerMarker(it)
+                it.marker.map = naverMap
+            }
+        }
     }
+
 }

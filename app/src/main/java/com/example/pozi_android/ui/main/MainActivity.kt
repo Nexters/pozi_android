@@ -17,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
-import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -77,7 +77,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val selectedPB = viewPagerAdapter.currentList[position]
-                viewModel.markerClickListener(LatLng(selectedPB._latitude, selectedPB._longitude))
+                viewModel.setFocusedPlace(selectedPB)
             }
         })
     }
@@ -93,11 +93,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getAllPlace()
 
+        /*
         viewModel.markerList.observe(this) { places ->
             places.forEach { place ->
-                place.marker.setOnClickListener { overly ->
+                place.marker.setOnClickListener {
                     val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-                        it.id == overly.tag
+                        it.id == place.id
                     }
                     selectedModel?.let {
                         val position = viewPagerAdapter.currentList.indexOf(it)
@@ -107,17 +108,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     true
                 }
                 CoroutineScope(Dispatchers.Main).launch {
-                    places.forEach { cmarker ->
-                        cmarker.marker.map = naverMap
+                    places.forEach { place ->
+                        place.marker.map = naverMap
                     }
                 }
             }
         }
+         */
 
         lifecycleScope.launch {
-            viewModel.PBListStateFlow.collect { uiState ->
+            viewModel.placeListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
+                        viewModel.attachMarker(uiState.data,mapView)
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -128,16 +131,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun showMapAppList(pb: PBEntity?) {
-        if (pb == null) return
+    private fun showMapAppList(place: Place?) {
+        if (place == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url =
-                    "nmap://route/walk?dlat=${pb._latitude}&dlng=${pb._longitude}&dname=${pb.brandName}"
+                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.latitude}&dname=${place.brandName}"
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
-                val url = "kakaomap://route?ep=${pb._latitude},${pb._longitude}&by=FOOT"
+                val url = "kakaomap://route?ep=${place.marker.position.latitude},${place.marker.position.latitude}&by=FOOT"
                 executeMap(url)
             }
         }
@@ -176,12 +179,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         isVisible = true
                         position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
                     }
-                    viewModel.markerClickListener(
-                        LatLng(
-                            currentLocation!!.latitude,
-                            currentLocation!!.longitude
-                        )
-                    )
                     with(naverMap) {
                         locationTrackingMode = LocationTrackingMode.Follow
                         binding.locationTxt.run {
