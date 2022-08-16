@@ -19,6 +19,7 @@ import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
 import com.example.pozi_android.domain.entity.PBEntity
 import com.example.pozi_android.ui.base.BaseActivity
+import com.example.pozi_android.ui.main.state.PBState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -30,6 +31,8 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -60,7 +63,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         binding.lifecycleOwner = this
         mapView.getMapAsync(this)
         permissionCheck()
-
         settingViewpager()
         currentimage.setOnClickListener {
             currentAddress()
@@ -109,7 +111,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
-
         viewModel.setMapClickListener(map)
 
         this.naverMap = map
@@ -117,10 +118,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getCenterList()
 
-        viewModel.markerList.observe(this) { markers ->
-            markers.forEach { Marker ->
-                Marker.setOnClickListener { overly ->
-                    viewModel.markerClickListener(Marker.position)
+        viewModel.markerList.observe(this) { cmarkers ->
+            cmarkers.forEach { Cmarker ->
+                Cmarker.marker.setOnClickListener { overly ->
                     val selectedModel = viewPagerAdapter.currentList.firstOrNull {
                         it.id == overly.tag
                     }
@@ -130,8 +130,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                     true
                 }
+                CoroutineScope(Dispatchers.Main).launch {
+                    cmarkers.forEach { cmarker ->
+                        cmarker.marker.map = naverMap
+                    }
+                }
             }
-
         }
 
         lifecycleScope.launch {

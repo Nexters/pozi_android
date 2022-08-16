@@ -1,15 +1,23 @@
 package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.R
+import com.example.pozi_android.domain.entity.CustomMarker
 import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.ui.main.MainViewModel
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.MarkerIcons
 
 object MarkerMapper {
-    fun EntityToMarker(entity: PBEntity): Marker =
+    fun entityToCustomMarker(entity: PBEntity): CustomMarker = CustomMarker(
+        entityToMarker(entity),
+        entity.address,
+        entity.subject,
+        entity.brandName,
+        entity.phoneNumber
+    )
+
+    fun entityToMarker(entity: PBEntity): Marker =
         Marker().apply {
             position = LatLng(entity._latitude, entity._longitude)
             tag = entity.id
@@ -38,6 +46,9 @@ object MarkerMapper {
                 }
                 "인생네컷" -> {
                     OverlayImage.fromResource(R.drawable.lifefourcut_off)
+                }
+                "비룸" -> {
+                    OverlayImage.fromResource(R.drawable.broom_off)
                 }
                 else -> {
                     MarkerIcons.BLACK.also {

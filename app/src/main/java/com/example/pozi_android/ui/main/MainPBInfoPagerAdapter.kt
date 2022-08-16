@@ -32,6 +32,7 @@ class MainPBInfoPagerAdapter :
                 "포토드링크" -> binding.brandimage.setImageResource(R.drawable.brand_photodrink)
                 "포토그레이" -> binding.brandimage.setImageResource(R.drawable.brand_photogray)
                 "포토이즘" -> binding.brandimage.setImageResource(R.drawable.brand_photoism)
+                "비룸" -> binding.brandimage.setImageResource(R.drawable.brand_broom)
             }
 
         }

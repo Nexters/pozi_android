@@ -22,8 +22,7 @@
             android:id="@+id/mainmap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:moveCamera="@{viewModel.moveCamera}"
-            app:attachMarker="@{viewModel.markerList}"/>
+            app:moveCamera="@{viewModel.moveCamera}" />
 
         <ImageView
             android:id="@+id/currentimage"
