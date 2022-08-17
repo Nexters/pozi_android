@@ -17,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
-import com.example.pozi_android.domain.entity.PBEntity
+import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -61,23 +61,68 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        mapView.getMapAsync(this)
         permissionCheck()
+        mapView.getMapAsync(this)
         settingViewpager()
-        currentimage.setOnClickListener {
+        currentbutton.setOnClickListener {
             currentAddress()
         }
     }
 
-    private fun showMapAppList(pb: PBEntity?) {
-        if (pb == null) return
+    private fun settingViewpager() {
+        viewPager.adapter = viewPagerAdapter
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            //viewpager에서 바뀔때마다 카메라가 전환된다, 마커도 검은색으로 색칠
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val selectedPB = viewPagerAdapter.currentList[position]
+                viewModel.setFocusedPlace(selectedPB)
+            }
+        })
+    }
+
+
+    @UiThread
+    override fun onMapReady(map: NaverMap) {
+        viewModel.setMapClickListener(map)
+        currentAddress()
+        this.naverMap = map
+        // 위치 추적 모드
+        map.locationSource = locationSource
+
+        viewModel.getAllPlace()
+
+        lifecycleScope.launch {
+            viewModel.placeListStateFlow.collect { uiState ->
+                when (uiState) {
+                    is PBState.Success -> {
+                        viewModel.attachMarker(uiState.data, mapView, viewPager, viewPagerAdapter)
+                        viewPagerAdapter.submitList(uiState.data.toMutableList())
+                    }
+                    is PBState.Error -> {
+                        Log.d("임민규", "ERROR")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showMapAppList(place: Place?) {
+        if (place == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
-                val url = "nmap://route/walk?dlat=${pb._latitude}&dlng=${pb._longitude}&dname=${pb.brandName}"
+                val url =
+                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.longitude}&dname=${place.address}"
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
-                val url = "kakaomap://route?ep=${pb._latitude},${pb._longitude}&by=FOOT"
+                val url =
+                    String.format(
+                        getString(R.string.findLoad_kakao_url),
+                        place.marker.position.latitude,
+                        place.marker.position.longitude
+                    )
                 executeMap(url)
             }
         }
@@ -94,66 +139,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             Toast.makeText(this, "해당 앱이 설치되어 있지 않습니다.", Toast.LENGTH_SHORT).show()
         }
     }
-
-    private fun settingViewpager() {
-        viewPager.adapter = viewPagerAdapter
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            //viewpager에서 바뀔때마다 카메라가 전환된다.
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                val selectedPB = viewPagerAdapter.currentList[position]
-                viewModel.markerClickListener(LatLng(selectedPB._latitude, selectedPB._longitude))
-            }
-        })
-    }
-
-
-    @UiThread
-    override fun onMapReady(map: NaverMap) {
-        viewModel.setMapClickListener(map)
-
-        this.naverMap = map
-        map.locationSource = locationSource
-
-        viewModel.getCenterList()
-
-        viewModel.markerList.observe(this) { cmarkers ->
-            cmarkers.forEach { Cmarker ->
-                Cmarker.marker.setOnClickListener { overly ->
-                    val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-                        it.id == overly.tag
-                    }
-                    selectedModel?.let {
-                        val position = viewPagerAdapter.currentList.indexOf(it)
-                        viewPager.currentItem = position
-                    }
-                    true
-                }
-                CoroutineScope(Dispatchers.Main).launch {
-                    cmarkers.forEach { cmarker ->
-                        cmarker.marker.map = naverMap
-                    }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.PBListStateFlow.collect { uiState ->
-                when (uiState) {
-                    is PBState.Success -> {
-                        viewPagerAdapter.submitList(uiState.data.toMutableList())
-                    }
-                    is PBState.Error -> {
-                        Log.d("임민규", "ERROR")
-                    }
-                }
-            }
-        }
-
-        currentAddress()
-    }
-
 
     fun currentAddress() {
         if (ActivityCompat.checkSelfPermission(
@@ -176,16 +161,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         isVisible = true
                         position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
                     }
-
-                    // 카메라 현재위치로 이동
-                    val cameraUpdate = CameraUpdate.scrollTo(
-                        LatLng(
-                            currentLocation!!.latitude,
-                            currentLocation!!.longitude
-                        )
-                    )
                     with(naverMap) {
-                        naverMap.moveCamera(cameraUpdate)
                         locationTrackingMode = LocationTrackingMode.Follow
                         binding.locationTxt.run {
                             text = getAddress(

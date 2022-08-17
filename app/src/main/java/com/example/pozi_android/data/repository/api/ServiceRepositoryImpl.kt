@@ -1,10 +1,9 @@
 package com.example.pozi_android.data.repository.api
 
-import android.util.Log
 import com.example.pozi_android.data.remote.network.RetrofitInterface
 import com.example.pozi_android.domain.entity.DataResult
-import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.domain.mapper.PBMapper
+import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.domain.mapper.PlaceMapper
 import com.example.pozi_android.domain.repository.ServiceRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -14,18 +13,18 @@ class ServiceRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : ServiceRepository {
 
-    override suspend fun getPBList(): DataResult<List<PBEntity>> = withContext(ioDispatcher) {
+    override suspend fun getPBList(): DataResult<List<Place>> = withContext(ioDispatcher) {
         try {
             val response = api.getPhotoBoothList()
             when {
                 response.isSuccessful -> {
-                    var id = 0
-                    var PBEntityList = mutableListOf<PBEntity>()
+                    var id: Long = 0
+                    var placeList = mutableListOf<Place>()
 
                     response.body()!!.result.forEach {
-                        PBEntityList.add(PBMapper.mapperToPB(id++, it))
+                        placeList.add(PlaceMapper.mapperToPlace(id++, it))
                     }
-                    DataResult.Success(PBEntityList)
+                    DataResult.Success(placeList)
                 }
                 else -> {
                     DataResult.Error("데이터를 못받아옴")
