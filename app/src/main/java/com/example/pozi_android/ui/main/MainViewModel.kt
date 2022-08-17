@@ -3,16 +3,15 @@ package com.example.pozi_android.ui.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.DataResult
-import com.example.pozi_android.domain.mapper.PlaceMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListUseCase
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.util.PlaceUtil
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
-import com.naver.maps.map.overlay.Marker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +52,6 @@ class MainViewModel @Inject constructor(
         PlaceUtil.getFocus(place)
         _focusedPlace.value = place
         _moveCamera.value = place.marker.position
-        _wigetVisibility.value = true
     }
 
     fun setMapClickListener(naverMap: NaverMap) =
@@ -81,17 +79,40 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun clicklistnerMarker(placa: Place) {
-        placa.marker.setOnClickListener {
-            onPlaceClick(placa)
+    fun markertoWiget(
+        placa: Place,
+        viewPager: ViewPager2,
+        viewPagerAdapter: MainPBInfoPagerAdapter
+    ) {
+        _wigetVisibility.value = true
+        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
+            it.id == placa.id
+        }
+        selectedModel?.let {
+            val position = viewPagerAdapter.currentList.indexOf(it)
+            viewPager.currentItem = position
+        }
+    }
+
+    fun clicklistnerMarker(
+        place: Place,
+        viewPager: ViewPager2,
+        viewPagerAdapter: MainPBInfoPagerAdapter
+    ) {
+        place.marker.setOnClickListener {
+            onPlaceClick(place)
+            markertoWiget(place, viewPager, viewPagerAdapter)
             true
         }
     }
 
-    fun attachMarker(list: List<Place>, mapView: MapView) {
+    fun attachMarker(
+        list: List<Place>, mapView: MapView, viewPager: ViewPager2,
+        viewPagerAdapter: MainPBInfoPagerAdapter
+    ) {
         mapView.getMapAsync { naverMap ->
             list.forEach {
-                clicklistnerMarker(it)
+                clicklistnerMarker(it, viewPager, viewPagerAdapter)
                 it.marker.map = naverMap
             }
         }

@@ -73,7 +73,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            //viewpager에서 바뀔때마다 카메라가 전환된다.
+            //viewpager에서 바뀔때마다 카메라가 전환된다, 마커도 검은색으로 색칠
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val selectedPB = viewPagerAdapter.currentList[position]
@@ -93,34 +93,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         viewModel.getAllPlace()
 
-        /*
-        viewModel.markerList.observe(this) { places ->
-            places.forEach { place ->
-                place.marker.setOnClickListener {
-                    val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-                        it.id == place.id
-                    }
-                    selectedModel?.let {
-                        val position = viewPagerAdapter.currentList.indexOf(it)
-                        viewPager.currentItem = position
-                    }
-                    viewModel.onPlaceClick(place)
-                    true
-                }
-                CoroutineScope(Dispatchers.Main).launch {
-                    places.forEach { place ->
-                        place.marker.map = naverMap
-                    }
-                }
-            }
-        }
-         */
-
         lifecycleScope.launch {
             viewModel.placeListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
-                        viewModel.attachMarker(uiState.data,mapView)
+                        viewModel.attachMarker(uiState.data, mapView, viewPager, viewPagerAdapter)
                         viewPagerAdapter.submitList(uiState.data.toMutableList())
                     }
                     is PBState.Error -> {
@@ -140,7 +117,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
-                val url = "kakaomap://route?ep=${place.marker.position.latitude},${place.marker.position.latitude}&by=FOOT"
+                val url =
+                    "kakaomap://route?ep=${place.marker.position.latitude},${place.marker.position.latitude}&by=FOOT"
                 executeMap(url)
             }
         }
