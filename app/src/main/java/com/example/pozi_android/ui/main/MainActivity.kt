@@ -1,14 +1,15 @@
 package com.example.pozi_android.ui.main
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
@@ -20,19 +21,20 @@ import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBindi
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
+import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.*
+import com.naver.maps.map.LocationTrackingMode
+import com.naver.maps.map.MapView
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -58,14 +60,40 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         findLoadClickListener = ::showMapAppList
     }
 
+    private val searchLocationActivityLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val latitude =
+                    result.data?.getDoubleExtra(SearchLocationActivity.KEY_LATITUDE, 0.0)
+                        ?: return@registerForActivityResult
+                val longitude =
+                    result.data?.getDoubleExtra(SearchLocationActivity.KEY_LONGITUDE, 0.0)
+                        ?: return@registerForActivityResult
+                val subTitle =
+                    result.data?.getStringExtra(SearchLocationActivity.KEY_SUBTITLE) ?: ""
+
+                binding.locationTxt.text = subTitle
+                viewModel.moveCam(latitude, longitude)
+            }
+        }
+
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
         permissionCheck()
         mapView.getMapAsync(this)
         settingViewpager()
-        currentbutton.setOnClickListener {
+        setClickListener()
+    }
+
+    private fun setClickListener() {
+        binding.currentbutton.setOnClickListener {
             currentAddress()
+        }
+        binding.searchLocationButton.setOnClickListener {
+            searchLocationActivityLauncher.launch(
+                Intent(this, SearchLocationActivity::class.java)
+            )
         }
     }
 
@@ -112,17 +140,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         if (place == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
-                val url =
-                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.longitude}&dname=${place.address}"
+                val url = getString(
+                    R.string.findLoad_naver_url,
+                    place.marker.position.latitude.toString(),
+                    place.marker.position.longitude.toString(),
+                    place.address
+                )
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
-                val url =
-                    String.format(
-                        getString(R.string.findLoad_kakao_url),
-                        place.marker.position.latitude,
-                        place.marker.position.longitude
-                    )
+                val url = getString(
+                    R.string.findLoad_kakao_url,
+                    place.marker.position.latitude.toString(),
+                    place.marker.position.longitude.toString()
+                )
                 executeMap(url)
             }
         }
@@ -140,63 +171,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun currentAddress() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+    private fun currentAddress() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
 
-        var currentLocation: Location?
         fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
                 lastLocation.addOnSuccessListener { location: Location? ->
-                    currentLocation = location
-                    naverMap.locationOverlay.run {
+                    naverMap.locationOverlay.apply {
                         isVisible = true
-                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                        position = LatLng(location!!.latitude, location.longitude)
                     }
-                    with(naverMap) {
-                        locationTrackingMode = LocationTrackingMode.Follow
-                        binding.locationTxt.run {
-                            text = getAddress(
-                                currentLocation!!.latitude,
-                                currentLocation!!.longitude
-                            )
-                        }
-                    }
+                    naverMap.locationTrackingMode = LocationTrackingMode.Follow
+                    binding.locationTxt.text = getAddress(location!!.latitude, location.longitude)
                 }
             }
     }
 
-    fun getAddress(lat: Double, lng: Double): String {
-        val geoCoder = Geocoder(this, Locale.KOREA)
-        val address: ArrayList<Address>
-        var addressResult = "주소를 가져 올 수 없습니다."
-        try {
-            address = geoCoder.getFromLocation(lat, lng, 1) as ArrayList<Address>
-            if (address.size > 0) {
-                // 주소 받아오기
-                val currentLocationAddress = address[0].getAddressLine(0)
-                    .toString()
-                addressResult = currentLocationAddress
-
-            }
-
+    private fun getAddress(lat: Double, lng: Double): String {
+        return try {
+            val address = Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
+            val fullAddress = address?.getAddressLine(0).toString()
+            val countryLength = address?.countryName?.length ?: -1
+            fullAddress.substring(countryLength + 1)
         } catch (e: IOException) {
             e.printStackTrace()
+            "주소를 가져 올 수 없습니다."
         }
-        return addressResult
-    }
-
-    companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        private const val TAG = "MainActivity"
     }
 
     override fun onClick(overly: Overlay): Boolean {
@@ -221,7 +225,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             )
             .check()
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-
     }
 
     override fun onPermissionGranted() {
@@ -232,4 +235,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         Toast.makeText(this@MainActivity, "위치 정보 제공이 거부되었습니다.", Toast.LENGTH_SHORT).show()
     }
 
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        private const val TAG = "MainActivity"
+    }
 }

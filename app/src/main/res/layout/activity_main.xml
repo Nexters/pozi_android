@@ -35,6 +35,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/searchLocationButton"
             android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_marginStart="107dp"
