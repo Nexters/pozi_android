@@ -113,12 +113,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url =
-                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.latitude}&dname=${place.brandName}"
+                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.longitude}&dname=${place.address}"
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
                 val url =
-                    "kakaomap://route?ep=${place.marker.position.latitude},${place.marker.position.latitude}&by=FOOT"
+                    String.format(
+                        getString(R.string.findLoad_kakao_url),
+                        place.marker.position.latitude,
+                        place.marker.position.longitude
+                    )
                 executeMap(url)
             }
         }
