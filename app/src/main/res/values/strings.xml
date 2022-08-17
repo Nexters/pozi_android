@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">pozi_android</string>
-    <string name = "findLoad_naver_url">nmap://route/walk?dlat=%$1s&amp;dlng=%$1s&amp;dname=%$1s</string>
-    <string name = "findLoad_kakao_url">kakaomap://route?ep=%1$s,%1$s&amp;by=FOOT</string>
+    <string name = "findLoad_naver_url">nmap://route/walk?dlat=%s&amp;dlng=%s&amp;dname=%s</string>
+    <string name = "findLoad_kakao_url">kakaomap://route?ep=%s,%s&amp;by=FOOT</string>
 </resources>
