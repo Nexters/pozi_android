@@ -3,7 +3,6 @@ package com.example.pozi_android.ui.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
@@ -31,8 +30,6 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -140,63 +137,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun currentAddress() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+    private fun currentAddress() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
 
-        var currentLocation: Location?
         fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
                 lastLocation.addOnSuccessListener { location: Location? ->
-                    currentLocation = location
-                    naverMap.locationOverlay.run {
+                    naverMap.locationOverlay.apply {
                         isVisible = true
-                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                        position = LatLng(location!!.latitude, location.longitude)
                     }
-                    with(naverMap) {
-                        locationTrackingMode = LocationTrackingMode.Follow
-                        binding.locationTxt.run {
-                            text = getAddress(
-                                currentLocation!!.latitude,
-                                currentLocation!!.longitude
-                            )
-                        }
-                    }
+                    naverMap.locationTrackingMode = LocationTrackingMode.Follow
+                    binding.locationTxt.text = getAddress(location!!.latitude, location.longitude)
                 }
             }
     }
 
-    fun getAddress(lat: Double, lng: Double): String {
-        val geoCoder = Geocoder(this, Locale.KOREA)
-        val address: ArrayList<Address>
-        var addressResult = "주소를 가져 올 수 없습니다."
-        try {
-            address = geoCoder.getFromLocation(lat, lng, 1) as ArrayList<Address>
-            if (address.size > 0) {
-                // 주소 받아오기
-                val currentLocationAddress = address[0].getAddressLine(0)
-                    .toString()
-                addressResult = currentLocationAddress
-
-            }
-
+    private fun getAddress(lat: Double, lng: Double): String {
+        return try {
+            val address = Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
+            val fullAddress = address?.getAddressLine(0).toString()
+            val countryLength = address?.countryName?.length ?: -1
+            fullAddress.substring(countryLength + 1)
         } catch (e: IOException) {
             e.printStackTrace()
+            "주소를 가져 올 수 없습니다."
         }
-        return addressResult
-    }
-
-    companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        private const val TAG = "MainActivity"
     }
 
     override fun onClick(overly: Overlay): Boolean {
@@ -221,7 +191,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             )
             .check()
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-
     }
 
     override fun onPermissionGranted() {
@@ -232,4 +201,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         Toast.makeText(this@MainActivity, "위치 정보 제공이 거부되었습니다.", Toast.LENGTH_SHORT).show()
     }
 
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        private const val TAG = "MainActivity"
+    }
 }
