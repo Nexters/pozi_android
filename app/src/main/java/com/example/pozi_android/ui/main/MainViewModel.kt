@@ -54,6 +54,10 @@ class MainViewModel @Inject constructor(
         _moveCamera.value = place.marker.position
     }
 
+    fun moveCam(latitude: Double, longitude: Double) {
+        _moveCamera.value = LatLng(latitude, longitude)
+    }
+
     fun setMapClickListener(naverMap: NaverMap) =
         naverMap.setOnMapClickListener { _, coord ->
             PlaceUtil.loseFocus(_focusedPlace.value)

@@ -1,14 +1,12 @@
 package com.example.pozi_android.ui.searchLocation
 
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.databinding.ItemSearchAddressBinding
 
 class SearchLocationAdapter(
-    private val list: List<LocationModel>,
+    private var list: List<LocationModel>,
     private val onClick: (LocationModel) -> Unit,
 ) : RecyclerView.Adapter<SearchLocationAdapter.ViewHolder>() {
 
@@ -25,6 +23,11 @@ class SearchLocationAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(list[position])
     override fun getItemCount(): Int = list.size
+
+    fun updateList(updatedList: List<LocationModel>) {
+        list = updatedList
+        notifyDataSetChanged()
+    }
 
     class ViewHolder(
         private val binding: ItemSearchAddressBinding,

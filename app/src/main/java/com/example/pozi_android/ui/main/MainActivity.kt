@@ -1,6 +1,7 @@
 package com.example.pozi_android.ui.main
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -8,6 +9,7 @@ import android.location.Location
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
@@ -19,17 +21,20 @@ import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBindi
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
+import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.*
+import com.naver.maps.map.LocationTrackingMode
+import com.naver.maps.map.MapView
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -55,14 +60,40 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         findLoadClickListener = ::showMapAppList
     }
 
+    private val searchLocationActivityLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val latitude =
+                    result.data?.getDoubleExtra(SearchLocationActivity.KEY_LATITUDE, 0.0)
+                        ?: return@registerForActivityResult
+                val longitude =
+                    result.data?.getDoubleExtra(SearchLocationActivity.KEY_LONGITUDE, 0.0)
+                        ?: return@registerForActivityResult
+                val subTitle =
+                    result.data?.getStringExtra(SearchLocationActivity.KEY_SUBTITLE) ?: ""
+
+                binding.locationTxt.text = subTitle
+                viewModel.moveCam(latitude, longitude)
+            }
+        }
+
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
         permissionCheck()
         mapView.getMapAsync(this)
         settingViewpager()
-        currentbutton.setOnClickListener {
+        setClickListener()
+    }
+
+    private fun setClickListener() {
+        binding.currentbutton.setOnClickListener {
             currentAddress()
+        }
+        binding.searchLocationButton.setOnClickListener {
+            searchLocationActivityLauncher.launch(
+                Intent(this, SearchLocationActivity::class.java)
+            )
         }
     }
 
