@@ -8,24 +8,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
 import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.domain.entity.ViewPagerItem
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<Place, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<ViewPagerItem, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    var findLoadClickListener: ((Place?) -> Unit)? = null
+    var findLoadClickListener: ((ViewPagerItem?) -> Unit)? = null
 
     inner class ItemViewHolder(private val binding: ItemPbViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
             binding.findLoadButton.setOnClickListener {
-                findLoadClickListener?.invoke(binding.place)
+                findLoadClickListener?.invoke(binding.viewpageritem)
             }
         }
 
-        fun bind(place: Place) {
-            binding.place = place
-            when (place.brandName) {
+        fun bind(item: ViewPagerItem) {
+            binding.viewpageritem = item
+            when (item.place.brandName) {
                 "포토매틱" -> binding.brandimage.setImageResource(R.drawable.brand_photomatic)
                 "하루필름" -> binding.brandimage.setImageResource(R.drawable.brand_harufilm)
                 "셀픽스" -> binding.brandimage.setImageResource(R.drawable.brand_selfixselfix)
@@ -52,12 +53,12 @@ class MainPBInfoPagerAdapter :
     }
 
     companion object {
-        val differ = object : DiffUtil.ItemCallback<Place>() {
-            override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
-                return oldItem.id == newItem.id
+        val differ = object : DiffUtil.ItemCallback<ViewPagerItem>() {
+            override fun areItemsTheSame(oldItem: ViewPagerItem, newItem: ViewPagerItem): Boolean {
+                return oldItem.place.id == newItem.place.id
             }
 
-            override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
+            override fun areContentsTheSame(oldItem: ViewPagerItem, newItem: ViewPagerItem): Boolean {
                 return oldItem == newItem
             }
         }

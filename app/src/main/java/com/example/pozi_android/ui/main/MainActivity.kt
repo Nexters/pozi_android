@@ -17,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
-import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.domain.entity.ViewPagerItem
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -27,12 +27,9 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
-import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -41,7 +38,7 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
-    OnMapReadyCallback, Overlay.OnClickListener, PermissionListener {
+    OnMapReadyCallback, PermissionListener {
 
     private val viewModel by viewModels<MainViewModel>()
     private lateinit var locationSource: FusedLocationSource
@@ -65,7 +62,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         mapView.getMapAsync(this)
         settingViewpager()
         currentbutton.setOnClickListener {
-            currentAddress()
+            trackingposition()
         }
     }
 
@@ -77,7 +74,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val selectedPB = viewPagerAdapter.currentList[position]
-                viewModel.setFocusedPlace(selectedPB)
+                viewModel.setFocusedPlace(selectedPB.place)
             }
         })
     }
@@ -86,9 +83,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     @UiThread
     override fun onMapReady(map: NaverMap) {
         viewModel.setMapClickListener(map)
-        currentAddress()
+        trackingposition()
         this.naverMap = map
-        // 위치 추적 모드
         map.locationSource = locationSource
 
         viewModel.getAllPlace()
@@ -98,7 +94,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 when (uiState) {
                     is PBState.Success -> {
                         viewModel.attachMarker(uiState.data, mapView, viewPager, viewPagerAdapter)
-                        viewPagerAdapter.submitList(uiState.data.toMutableList())
+                        var itemList = mutableListOf<ViewPagerItem>()
+                        uiState.data.forEach {
+                            itemList.add(ViewPagerItem(it, viewModel.distancetoPlace(it)))
+                        }
+                        viewPagerAdapter.submitList(itemList)
                     }
                     is PBState.Error -> {
                         Log.d("임민규", "ERROR")
@@ -106,22 +106,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 }
             }
         }
+
     }
 
-    private fun showMapAppList(place: Place?) {
-        if (place == null) return
+    private fun showMapAppList(item: ViewPagerItem?) {
+        if (item == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url =
-                    "nmap://route/walk?dlat=${place.marker.position.latitude}&dlng=${place.marker.position.longitude}&dname=${place.address}"
+                    "nmap://route/walk?dlat=${item.place.marker.position.latitude}&dlng=${item.place.marker.position.longitude}&dname=${item.place.address}"
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
                 val url =
                     String.format(
                         getString(R.string.findLoad_kakao_url),
-                        place.marker.position.latitude,
-                        place.marker.position.longitude
+                        item.place.marker.position.latitude,
+                        item.place.marker.position.longitude
                     )
                 executeMap(url)
             }
@@ -140,7 +141,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun currentAddress() {
+    fun currentPosition() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
+                lastLocation.addOnSuccessListener { location ->
+                    viewModel.currentPositionListener(location)
+                }
+            }
+    }
+
+    fun trackingposition() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -172,6 +192,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                 }
             }
+
+        currentPosition()
     }
 
     fun getAddress(lat: Double, lng: Double): String {
@@ -197,19 +219,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         private const val TAG = "MainActivity"
-    }
-
-    override fun onClick(overly: Overlay): Boolean {
-        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-            it.id == overly.tag
-        }
-
-        selectedModel?.let {
-            val position = viewPagerAdapter.currentList.indexOf(it)
-            viewPager.currentItem = position
-        }
-
-        return true
     }
 
     private fun permissionCheck() {
