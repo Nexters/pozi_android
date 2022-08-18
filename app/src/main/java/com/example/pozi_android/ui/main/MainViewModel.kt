@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToLong
@@ -37,14 +38,51 @@ class MainViewModel @Inject constructor(
     private val _moveCamera: MutableLiveData<LatLng> = MutableLiveData()
     val moveCamera: LiveData<LatLng> = _moveCamera
 
+    private val _zoomCamera: MutableLiveData<Double> = MutableLiveData()
+    val zoomCamera: LiveData<Double> = _zoomCamera
+
     private val _focusedPlace = MutableLiveData<Place?>()
     val focusedPlace: LiveData<Place?> = _focusedPlace
 
     private val _currentPosition: MutableLiveData<LatLng> = MutableLiveData()
     val currentPosition: LiveData<LatLng> = _currentPosition
 
-    fun currentPositionListener(location: Location){
-        _currentPosition.postValue(LatLng(location.latitude,location.longitude))
+    fun getZoom(zoom:Double){
+        _zoomCamera.postValue(zoom)
+    }
+
+    suspend fun outZoom() {
+        placeListStateFlow.collect { uiState ->
+            when (uiState) {
+                is PBState.Success -> {
+                    uiState.data.forEach {
+                        PlaceUtil.transMarker(it)
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun inZoom() {
+        placeListStateFlow.collect { uiState ->
+            when (uiState) {
+                is PBState.Success -> {
+                    uiState.data.forEach {
+                        if (_focusedPlace.value != null) {
+                            val focus = _focusedPlace.value
+                            if (it == focus) PlaceUtil.getFocus(it)
+                            else PlaceUtil.loseFocus(it)
+                        } else {
+                            PlaceUtil.loseFocus(it)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun currentPositionListener(location: Location) {
+        _currentPosition.postValue(LatLng(location.latitude, location.longitude))
     }
 
     fun onPlaceClick(clickedPlace: Place): Boolean {
