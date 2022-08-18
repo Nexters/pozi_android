@@ -21,8 +21,10 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/radius_4.xml" value="0.18" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/radius_8.xml" value="0.1765" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_main.xml" value="0.25364583333333335" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/item_pb_viewpager.xml" value="0.176" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_search_location.xml" value="0.264" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/item_pb_viewpager.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/item_photobooth_detail_viewpager.xml" value="0.4" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/item_search_address.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/select_map_application_bottom_sheet.xml" value="0.25364583333333335" />
       </map>
     </option>

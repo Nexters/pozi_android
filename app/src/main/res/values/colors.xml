@@ -11,4 +11,5 @@
 
     <color name="textColor">#151515</color>
     <color name="textSubColor">#999999</color>
+    <color name="address_bg">#E6151515</color>
 </resources>

@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="17dp"
             android:layout_marginTop="18dp"
-            android:src="@drawable/ic_point"
+            android:src="@drawable/positionicon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
