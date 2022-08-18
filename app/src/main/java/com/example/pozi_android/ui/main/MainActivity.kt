@@ -142,6 +142,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         uiState.data.forEach {
                             itemList.add(ViewPagerItem(it, viewModel.distancetoPlace(it)))
                         }
+                        Log.d("임민규",itemList.toString())
                         viewPagerAdapter.submitList(itemList)
                     }
                     is PBState.Error -> {
@@ -153,23 +154,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
         naverMap.addOnCameraChangeListener { reason, animated ->
             if (viewModel.zoomCamera.value != naverMap.cameraPosition.zoom) {
+                Log.d("민규","1")
                 when {
                     naverMap.cameraPosition.zoom < 13.0 -> {
-                        Log.d("임민규", "2")
                         lifecycleScope.launch {
                             viewModel.outZoom()
                             viewModel.getZoom(naverMap.cameraPosition.zoom)
+                            Log.d("민규","2")
                         }
                     }
                     naverMap.cameraPosition.zoom >= 15.0 -> {
-                        Log.d("임민규", "3")
                         lifecycleScope.launch {
                             viewModel.inZoom()
                             viewModel.getZoom(naverMap.cameraPosition.zoom)
+                            Log.d("민규","3")
                         }
-                    }
-                    else -> {
-                        Log.d("임민규", "4")
                     }
                 }
             }

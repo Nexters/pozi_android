@@ -17,8 +17,7 @@ object PlaceMapper {
             marker = mapperToMarker(snap),
             address = snap.get("address") as String,
             subject = snap.get("subject") as String,
-            brandName = snap.get("brandName") as String,
-            phoneNumber = snap.get("phoneNumber") as String
+            brandName = snap.get("brandName") as String
         )
 
     fun mapperToPlace(id: Long, pb: PBRes.PB): Place =
@@ -28,15 +27,23 @@ object PlaceMapper {
             address = pb.address,
             subject = pb.subject,
             brandName = pb.brandName,
-            phoneNumber = id.toString() //데이터가 이상해서 이렇게 연결해 놓음
         )
 
     fun mapperToMarker(snap: DocumentSnapshot): Marker =
         Marker().apply {
-            position = LatLng(
-                (snap.get("coordinates") as Map<String, Double>).get("_latitude") as Double,
-                (snap.get("coordinates") as Map<String, Double>).get("_longitude") as Double
-            )
+            var latlng: Map<String, Double>? = snap.get("coordinates") as Map<String, Double>?
+            if(latlng == null){
+                position = LatLng(
+                    snap.get("posX") as Double,
+                    snap.get("posY") as Double
+                )
+            }else{
+                position = LatLng(
+                    latlng.get("_latitude") as Double,
+                    latlng.get("_longitude") as Double
+                )
+            }
+
             tag = snap.get("brandName") as String
             isHideCollidedSymbols = true
             isIconPerspectiveEnabled = true

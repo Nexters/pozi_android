@@ -5,8 +5,7 @@ import com.naver.maps.map.overlay.Marker
 data class Place(
     var id:Long,
     var marker:Marker,
-    val address: String,
-    val subject: String,
-    val brandName: String,
-    val phoneNumber: String
+    var address: String,
+    var subject: String,
+    var brandName: String
 )
