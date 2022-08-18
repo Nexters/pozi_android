@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
+import androidx.databinding.adapters.ViewBindingAdapter.setClickListener
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
@@ -88,12 +89,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         settingViewpager()
         currentbutton.setOnClickListener {
             trackingposition()
-        setClickListener()
+            setClickListener()
+        }
     }
 
-    private fun setClickListener() {
+    fun setClickListener() {
         binding.currentbutton.setOnClickListener {
-            currentAddress()
+            currentPosition()
         }
         binding.searchLocationButton.setOnClickListener {
             searchLocationActivityLauncher.launch(
@@ -102,7 +104,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun settingViewpager() {
+    fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -129,7 +131,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             viewModel.placeListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
-                        viewModel.attachMarker(uiState.data, mapView, viewPager, viewPagerAdapter)
+                        viewModel.attachMarker(
+                            uiState.data,
+                            mapView,
+                            viewPager,
+                            viewPagerAdapter
+                        )
                         var itemList = mutableListOf<ViewPagerItem>()
                         uiState.data.forEach {
                             itemList.add(ViewPagerItem(it, viewModel.distancetoPlace(it)))
@@ -145,23 +152,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     }
 
-    private fun showMapAppList(item: ViewPagerItem?) {
+    fun showMapAppList(item: ViewPagerItem?) {
         if (item == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url = getString(
                     R.string.findLoad_naver_url,
-                    place.marker.position.latitude.toString(),
-                    place.marker.position.longitude.toString(),
-                    place.address
+                    item.place.marker.position.latitude.toString(),
+                    item.place.marker.position.longitude.toString(),
+                    item.place.address
                 )
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
                 val url = getString(
                     R.string.findLoad_kakao_url,
-                    place.marker.position.latitude.toString(),
-                    place.marker.position.longitude.toString()
+                    item.place.marker.position.latitude.toString(),
+                    item.place.marker.position.longitude.toString()
                 )
                 executeMap(url)
             }
@@ -171,7 +178,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }.show()
     }
 
-    private fun executeMap(url: String) {
+    fun executeMap(url: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
@@ -218,7 +225,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     currentLocation = location
                     naverMap.locationOverlay.run {
                         isVisible = true
-                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                        position =
+                            LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
                     }
                     with(naverMap) {
                         locationTrackingMode = LocationTrackingMode.Follow
@@ -231,11 +239,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                 }
             }
+        currentPosition()
     }
 
-    private fun getAddress(lat: Double, lng: Double): String {
+    fun getAddress(lat: Double, lng: Double): String {
         return try {
-            val address = Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
+            val address =
+                Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
             val fullAddress = address?.getAddressLine(0).toString()
             val countryLength = address?.countryName?.length ?: -1
             fullAddress.substring(countryLength + 1)
@@ -245,7 +255,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun permissionCheck() {
+    fun permissionCheck() {
         TedPermission.create()
             .setPermissionListener(this)
             .setPermissions(
