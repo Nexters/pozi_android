@@ -1,5 +1,6 @@
 package com.example.pozi_android.ui.main
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.roundToLong
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -38,14 +40,22 @@ class MainViewModel @Inject constructor(
     private val _focusedPlace = MutableLiveData<Place?>()
     val focusedPlace: LiveData<Place?> = _focusedPlace
 
-    private val _addressText = MutableLiveData("")
-    val addressText: LiveData<String> = _addressText
+    private val _currentPosition: MutableLiveData<LatLng> = MutableLiveData()
+    val currentPosition: LiveData<LatLng> = _currentPosition
+
+    fun currentPositionListener(location: Location){
+        _currentPosition.postValue(LatLng(location.latitude,location.longitude))
+    }
 
     fun onPlaceClick(clickedPlace: Place): Boolean {
         if (_focusedPlace.value == clickedPlace) return true
         setFocusedPlace(clickedPlace)
         return true
     }
+
+    fun distancetoPlace(place: Place): Long? =
+        _currentPosition.value?.distanceTo(place.marker.position)?.roundToLong()
+
 
     fun setFocusedPlace(place: Place) {
         PlaceUtil.loseFocus(_focusedPlace.value)
@@ -61,6 +71,7 @@ class MainViewModel @Inject constructor(
     fun setMapClickListener(naverMap: NaverMap) =
         naverMap.setOnMapClickListener { _, coord ->
             PlaceUtil.loseFocus(_focusedPlace.value)
+            _wigetVisibility.value = false
         }
 
     fun getAllPlace() {
@@ -84,18 +95,19 @@ class MainViewModel @Inject constructor(
     }
 
     fun markertoWiget(
-        placa: Place,
+        place: Place,
         viewPager: ViewPager2,
         viewPagerAdapter: MainPBInfoPagerAdapter
     ) {
         _wigetVisibility.value = true
         val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-            it.id == placa.id
+            it.place.id == place.id
         }
         selectedModel?.let {
             val position = viewPagerAdapter.currentList.indexOf(it)
             viewPager.currentItem = position
         }
+        _wigetVisibility.value = true
     }
 
     fun clicklistnerMarker(

@@ -11,6 +11,12 @@ fun setText(view: TextView, text: String) {
     view.text = text
 }
 
+@BindingAdapter("setdisttext")
+fun setdisttext(view: TextView, text: Long) {
+    if(text == null)view.text = "123m"
+    else view.text = text.toString() + "m"
+}
+
 @BindingAdapter("visible")
 fun setVisible(view: View, isVisible: Boolean) {
     view.visibility = if (isVisible) View.VISIBLE else View.GONE

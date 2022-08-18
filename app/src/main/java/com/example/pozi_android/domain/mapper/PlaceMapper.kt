@@ -40,6 +40,8 @@ object PlaceMapper {
             tag = snap.get("brandName") as String
             isHideCollidedSymbols = true
             isIconPerspectiveEnabled = true
+            width = 155
+            height = 170
             icon = when (snap.get("brandName") as String) {
                 "포토매틱" -> {
                     OverlayImage.fromResource(R.drawable.photomatic_off)
@@ -82,6 +84,8 @@ object PlaceMapper {
             tag = pb.brandName
             isHideCollidedSymbols = true
             isIconPerspectiveEnabled = true
+            width = 155
+            height = 170
             icon = when (pb.brandName) {
                 "포토매틱" -> {
                     OverlayImage.fromResource(R.drawable.photomatic_off)

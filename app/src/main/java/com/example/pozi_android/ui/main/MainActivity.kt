@@ -13,12 +13,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
+import androidx.databinding.adapters.ViewBindingAdapter.setClickListener
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
-import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.domain.entity.ViewPagerItem
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
@@ -35,6 +36,9 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -43,7 +47,7 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
-    OnMapReadyCallback, Overlay.OnClickListener, PermissionListener {
+    OnMapReadyCallback, PermissionListener {
 
     private val viewModel by viewModels<MainViewModel>()
     private lateinit var locationSource: FusedLocationSource
@@ -83,12 +87,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         permissionCheck()
         mapView.getMapAsync(this)
         settingViewpager()
-        setClickListener()
+        currentbutton.setOnClickListener {
+            trackingposition()
+            setClickListener()
+        }
     }
 
-    private fun setClickListener() {
+    fun setClickListener() {
         binding.currentbutton.setOnClickListener {
-            currentAddress()
+            currentPosition()
         }
         binding.searchLocationButton.setOnClickListener {
             searchLocationActivityLauncher.launch(
@@ -97,7 +104,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun settingViewpager() {
+    fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -105,7 +112,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val selectedPB = viewPagerAdapter.currentList[position]
-                viewModel.setFocusedPlace(selectedPB)
+                viewModel.setFocusedPlace(selectedPB.place)
             }
         })
     }
@@ -114,9 +121,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     @UiThread
     override fun onMapReady(map: NaverMap) {
         viewModel.setMapClickListener(map)
-        currentAddress()
+        trackingposition()
         this.naverMap = map
-        // 위치 추적 모드
         map.locationSource = locationSource
 
         viewModel.getAllPlace()
@@ -125,8 +131,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             viewModel.placeListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
-                        viewModel.attachMarker(uiState.data, mapView, viewPager, viewPagerAdapter)
-                        viewPagerAdapter.submitList(uiState.data.toMutableList())
+                        viewModel.attachMarker(
+                            uiState.data,
+                            mapView,
+                            viewPager,
+                            viewPagerAdapter
+                        )
+                        var itemList = mutableListOf<ViewPagerItem>()
+                        uiState.data.forEach {
+                            itemList.add(ViewPagerItem(it, viewModel.distancetoPlace(it)))
+                        }
+                        viewPagerAdapter.submitList(itemList)
                     }
                     is PBState.Error -> {
                         Log.d("임민규", "ERROR")
@@ -134,25 +149,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 }
             }
         }
+
     }
 
-    private fun showMapAppList(place: Place?) {
-        if (place == null) return
+    fun showMapAppList(item: ViewPagerItem?) {
+        if (item == null) return
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url = getString(
                     R.string.findLoad_naver_url,
-                    place.marker.position.latitude.toString(),
-                    place.marker.position.longitude.toString(),
-                    place.address
+                    item.place.marker.position.latitude.toString(),
+                    item.place.marker.position.longitude.toString(),
+                    item.place.address
                 )
                 executeMap(url)
             }
             kakaoImage.setOnClickListener {
                 val url = getString(
                     R.string.findLoad_kakao_url,
-                    place.marker.position.latitude.toString(),
-                    place.marker.position.longitude.toString()
+                    item.place.marker.position.latitude.toString(),
+                    item.place.marker.position.longitude.toString()
                 )
                 executeMap(url)
             }
@@ -162,7 +178,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }.show()
     }
 
-    private fun executeMap(url: String) {
+    fun executeMap(url: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
@@ -171,29 +187,65 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun currentAddress() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+    fun currentPosition() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
-
         fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
-                lastLocation.addOnSuccessListener { location: Location? ->
-                    naverMap.locationOverlay.apply {
-                        isVisible = true
-                        position = LatLng(location!!.latitude, location.longitude)
-                    }
-                    naverMap.locationTrackingMode = LocationTrackingMode.Follow
-                    binding.locationTxt.text = getAddress(location!!.latitude, location.longitude)
+                lastLocation.addOnSuccessListener { location ->
+                    viewModel.currentPositionListener(location)
                 }
             }
     }
 
-    private fun getAddress(lat: Double, lng: Double): String {
+    fun trackingposition() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        var currentLocation: Location?
+        fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
+                lastLocation.addOnSuccessListener { location: Location? ->
+                    currentLocation = location
+                    naverMap.locationOverlay.run {
+                        isVisible = true
+                        position =
+                            LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                    }
+                    with(naverMap) {
+                        locationTrackingMode = LocationTrackingMode.Follow
+                        binding.locationTxt.run {
+                            text = getAddress(
+                                currentLocation!!.latitude,
+                                currentLocation!!.longitude
+                            )
+                        }
+                    }
+                }
+            }
+        currentPosition()
+    }
+
+    fun getAddress(lat: Double, lng: Double): String {
         return try {
-            val address = Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
+            val address =
+                Geocoder(this, Locale.KOREA).getFromLocation(lat, lng, 1).firstOrNull()
             val fullAddress = address?.getAddressLine(0).toString()
             val countryLength = address?.countryName?.length ?: -1
             fullAddress.substring(countryLength + 1)
@@ -203,20 +255,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    override fun onClick(overly: Overlay): Boolean {
-        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-            it.id == overly.tag
-        }
-
-        selectedModel?.let {
-            val position = viewPagerAdapter.currentList.indexOf(it)
-            viewPager.currentItem = position
-        }
-
-        return true
-    }
-
-    private fun permissionCheck() {
+    fun permissionCheck() {
         TedPermission.create()
             .setPermissionListener(this)
             .setPermissions(
