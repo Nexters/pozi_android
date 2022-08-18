@@ -124,6 +124,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         trackingposition()
         this.naverMap = map
         map.locationSource = locationSource
+        viewModel.getZoom(naverMap.cameraPosition.zoom)
 
         viewModel.getAllPlace()
 
@@ -145,6 +146,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                     is PBState.Error -> {
                         Log.d("임민규", "ERROR")
+                    }
+                }
+            }
+        }
+
+        naverMap.addOnCameraChangeListener { reason, animated ->
+            if (viewModel.zoomCamera.value != naverMap.cameraPosition.zoom) {
+                when {
+                    naverMap.cameraPosition.zoom < 13.0 -> {
+                        Log.d("임민규", "2")
+                        lifecycleScope.launch {
+                            viewModel.outZoom()
+                            viewModel.getZoom(naverMap.cameraPosition.zoom)
+                        }
+                    }
+                    naverMap.cameraPosition.zoom >= 15.0 -> {
+                        Log.d("임민규", "3")
+                        lifecycleScope.launch {
+                            viewModel.inZoom()
+                            viewModel.getZoom(naverMap.cameraPosition.zoom)
+                        }
+                    }
+                    else -> {
+                        Log.d("임민규", "4")
                     }
                 }
             }
