@@ -36,13 +36,10 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchLocationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="107dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:layout_marginTop="64dp"
-            android:layout_marginEnd="106dp"
-            android:background="@drawable/main_mylocation_btn_shape"
-            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -50,33 +47,31 @@
             <TextView
                 android:id="@+id/locationTxt"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="6dp"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
-                android:text="현위치에서 재검색"
-                android:textColor="@color/white"
-                android:textSize="16sp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/main_mylocation_btn_shape"
                 android:ellipsize="end"
+                android:gravity="center"
                 android:maxLines="1"
-                android:maxLength="30"
+                android:paddingVertical="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="34dp"
+                android:textColor="@color/white"
+                android:textSize="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/caretdown"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="경기 성남시 분당구 판교역로2번길 29" />
 
             <ImageView
                 android:id="@+id/caretdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="18dp"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="16dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/caretdown"
+                android:src="@drawable/ic_dropdown"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/locationTxt"
+                app:layout_constraintEnd_toEndOf="@id/locationTxt"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -92,8 +87,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:visible="@{viewModel.wigetVisibility}" />
-
-
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
