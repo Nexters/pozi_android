@@ -87,13 +87,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         permissionCheck()
         mapView.getMapAsync(this)
         settingViewpager()
+        setClickListener()
         currentbutton.setOnClickListener {
             trackingposition()
-            setClickListener()
         }
     }
 
-    fun setClickListener() {
+    private fun setClickListener() {
         binding.currentbutton.setOnClickListener {
             currentPosition()
         }
@@ -104,7 +104,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun settingViewpager() {
+    private fun settingViewpager() {
         viewPager.adapter = viewPagerAdapter
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
