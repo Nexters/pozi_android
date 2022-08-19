@@ -2,15 +2,17 @@ package com.example.pozi_android.ui.searchLocation
 
 import android.content.Intent
 import android.location.Geocoder
+import android.util.Log
 import androidx.activity.viewModels
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivitySearchLocationBinding
 import com.example.pozi_android.ui.base.BaseActivity
+import com.example.pozi_android.ui.extension.textChangesToFlow
 import com.example.pozi_android.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -31,10 +33,18 @@ class SearchLocationActivity :
         setObservers()
     }
 
+    @OptIn(FlowPreview::class)
     private fun setListeners() {
-        binding.searchText.addTextChangedListener {
-            viewModel.getAddress(geocoder, it.toString())
-        }
+        binding.searchText.textChangesToFlow()
+            .debounce(500)
+            .filter {
+                it?.isBlank() != true
+            }
+            .onEach {
+                Log.d("Sangeun", it.toString())
+                viewModel.getAddress(geocoder, it.toString())
+            }
+            .launchIn(lifecycleScope)
     }
 
     private fun setObservers() {
