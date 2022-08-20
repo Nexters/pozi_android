@@ -12,8 +12,8 @@ object PlaceUtil {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     fun transMarker(place: Place?) = coroutineScope.launch {
-        place?.marker?.width = 90
-        place?.marker?.height = 90
+        place?.marker?.width = 50
+        place?.marker?.height = 50
         place?.marker?.icon = OverlayImage.fromResource(R.drawable.marker_small)
     }
 
