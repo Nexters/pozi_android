@@ -17,11 +17,11 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:layout_marginStart="17dp"
             android:layout_marginTop="18dp"
-            android:src="@drawable/positionicon"
+            android:src="@drawable/point"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
