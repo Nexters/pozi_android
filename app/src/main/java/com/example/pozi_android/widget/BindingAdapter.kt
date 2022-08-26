@@ -1,5 +1,6 @@
 package com.example.pozi_android.widget
 
+import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,9 +28,15 @@ fun setdisttext(view: TextView, text: Long?) {
     else view.text = text.toString() + "m"
 }
 
-@BindingAdapter("visible")
-fun setVisible(view: View, isVisible: Boolean) {
-    view.visibility = if (isVisible) View.VISIBLE else View.GONE
+@BindingAdapter("naverlogoposition")
+fun naverlogoposition(mapView: MapView, isVisible: Boolean) {
+    mapView.getMapAsync { naverMap ->
+        if(isVisible){
+            naverMap.uiSettings.setLogoMargin(65,0,0,750)
+        }else{
+            naverMap.uiSettings.setLogoMargin(65,0,0,50)
+        }
+    }
 }
 
 @BindingAdapter("attachmarker", "onClickPlace")
@@ -62,6 +69,7 @@ fun moveCamera(mapView: MapView, latLng: LatLng?) {
             naverMap.uiSettings.isZoomControlEnabled = false
             naverMap.uiSettings.isScaleBarEnabled = false
             naverMap.uiSettings.isLogoClickEnabled = false
+            //naverMap.uiSettings.logoGravity = Gravity.BOTTOM
         }
     }
 }

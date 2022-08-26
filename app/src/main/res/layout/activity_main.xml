@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:moveCamera="@{viewModel.currentCamera}"
+            app:naverlogoposition="@{viewModel.wigetVisibility}"
             tools:layout_editor_absoluteX="1dp"
             tools:layout_editor_absoluteY="0dp" />
 
