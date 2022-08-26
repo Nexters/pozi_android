@@ -2,4 +2,7 @@
     <string name="app_name">pozi_android</string>
     <string name = "findLoad_naver_url">nmap://route/walk?dlat=%s&amp;dlng=%s&amp;dname=%s</string>
     <string name = "findLoad_kakao_url">kakaomap://route?ep=%s,%s&amp;by=FOOT</string>
+    <string name = "Gangnam_lat">37.497885</string>
+    <string name = "Gangnam_lon">127.027512</string>
+
 </resources>

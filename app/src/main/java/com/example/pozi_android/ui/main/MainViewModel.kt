@@ -1,18 +1,15 @@
 package com.example.pozi_android.ui.main
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.DataResult
-import com.example.pozi_android.domain.usecase.GetPhotoBoothListUseCase
+import com.example.pozi_android.domain.usecase.GetPhotoBoothListLocationUseCase
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.util.PlaceUtil
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.MapView
-import com.naver.maps.map.NaverMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +23,7 @@ import kotlin.math.roundToLong
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getPBListUseCase: GetPhotoBoothListUseCase,
+    private val getPBListUseCase: GetPhotoBoothListLocationUseCase,
 ) : ViewModel() {
 
     private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
@@ -35,19 +32,30 @@ class MainViewModel @Inject constructor(
     val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData() //private 해줘도 되는지 확인 하기
     val wigetVisibility: LiveData<Boolean> = _wigetVisibility
 
-    private val _moveCamera: MutableLiveData<LatLng> = MutableLiveData()
-    val moveCamera: LiveData<LatLng> = _moveCamera
-
     private val _zoomCamera: MutableLiveData<Double> = MutableLiveData()
     val zoomCamera: LiveData<Double> = _zoomCamera
 
     private val _focusedPlace = MutableLiveData<Place?>()
     val focusedPlace: LiveData<Place?> = _focusedPlace
 
-    private val _currentPosition: MutableLiveData<LatLng> = MutableLiveData()
-    val currentPosition: LiveData<LatLng> = _currentPosition
+    private val _currentLatlng: MutableLiveData<LatLng> = MutableLiveData()
+    val currentLatlng: LiveData<LatLng> = _currentLatlng
 
-    fun getZoom(zoom:Double){
+    private val _currentCamera: MutableLiveData<LatLng> = MutableLiveData()
+    val currentCamera: LiveData<LatLng> = _currentCamera
+
+    private val _geocurrentLatlng: MutableLiveData<String> = MutableLiveData()
+    val geocurrentLatlng: LiveData<String> = _geocurrentLatlng
+
+    fun init() {
+        _geocurrentLatlng.postValue("서울특별시 강남구 역삼동 858-50")
+    }
+
+    fun setGeoposition(position: String) {
+        _geocurrentLatlng.postValue(position)
+    }
+
+    fun getZoom(zoom: Double) {
         _zoomCamera.postValue(zoom)
     }
 
@@ -81,8 +89,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun currentPositionListener(location: Location) {
-        _currentPosition.postValue(LatLng(location.latitude, location.longitude))
+    fun currentPositionListener(latLng: LatLng) {
+        _currentLatlng.postValue(LatLng(latLng.latitude, latLng.longitude))
+    }
+
+    fun currentCamera(latLng: LatLng) {
+        _currentCamera.postValue(LatLng(latLng.latitude, latLng.longitude))
     }
 
     fun onPlaceClick(clickedPlace: Place): Boolean {
@@ -92,31 +104,21 @@ class MainViewModel @Inject constructor(
     }
 
     fun distancetoPlace(place: Place): Long? =
-        _currentPosition.value?.distanceTo(place.marker.position)?.roundToLong()
+        _currentLatlng.value?.distanceTo(place.marker.position)?.roundToLong()
 
 
     fun setFocusedPlace(place: Place) {
         PlaceUtil.loseFocus(_focusedPlace.value)
         PlaceUtil.getFocus(place)
         _focusedPlace.value = place
-        _moveCamera.value = place.marker.position
+        _currentCamera.value = place.marker.position
     }
-
-    fun moveCam(latitude: Double, longitude: Double) {
-        _moveCamera.value = LatLng(latitude, longitude)
-    }
-
-    fun setMapClickListener(naverMap: NaverMap) =
-        naverMap.setOnMapClickListener { _, coord ->
-            PlaceUtil.loseFocus(_focusedPlace.value)
-            _wigetVisibility.value = false
-        }
 
     fun getAllPlace() {
         _placeListStateFlow.value = PBState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
-            when (val result = getPBListUseCase()) {
+            when (val result = getPBListUseCase(_currentLatlng.value)) {
                 is DataResult.Success -> {
                     _placeListStateFlow.value = PBState.Success(result.data)
                 }
@@ -127,48 +129,7 @@ class MainViewModel @Inject constructor(
                     _placeListStateFlow.value = PBState.Error
                 }
             }
-
             _focusedPlace.postValue(null)
-        }
-    }
-
-    fun markertoWiget(
-        place: Place,
-        viewPager: ViewPager2,
-        viewPagerAdapter: MainPBInfoPagerAdapter
-    ) {
-        _wigetVisibility.value = true
-        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-            it.place.id == place.id
-        }
-        selectedModel?.let {
-            val position = viewPagerAdapter.currentList.indexOf(it)
-            viewPager.currentItem = position
-        }
-        _wigetVisibility.value = true
-    }
-
-    fun clicklistnerMarker(
-        place: Place,
-        viewPager: ViewPager2,
-        viewPagerAdapter: MainPBInfoPagerAdapter
-    ) {
-        place.marker.setOnClickListener {
-            onPlaceClick(place)
-            markertoWiget(place, viewPager, viewPagerAdapter)
-            true
-        }
-    }
-
-    fun attachMarker(
-        list: List<Place>, mapView: MapView, viewPager: ViewPager2,
-        viewPagerAdapter: MainPBInfoPagerAdapter
-    ) {
-        mapView.getMapAsync { naverMap ->
-            list.forEach {
-                clicklistnerMarker(it, viewPager, viewPagerAdapter)
-                it.marker.map = naverMap
-            }
         }
     }
 

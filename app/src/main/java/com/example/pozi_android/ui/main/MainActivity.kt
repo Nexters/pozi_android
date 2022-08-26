@@ -13,32 +13,27 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.UiThread
 import androidx.core.app.ActivityCompat
-import androidx.databinding.adapters.ViewBindingAdapter.setClickListener
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
+import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.ViewPagerItem
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
+import com.example.pozi_android.util.PlaceUtil
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapView
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.overlay.Overlay
+import com.naver.maps.map.*
+import com.naver.maps.map.CameraUpdate.REASON_GESTURE
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -50,9 +45,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     OnMapReadyCallback, PermissionListener {
 
     private val viewModel by viewModels<MainViewModel>()
-    private lateinit var locationSource: FusedLocationSource
     lateinit var naverMap: NaverMap
+    private lateinit var locationSource: FusedLocationSource
     lateinit var fusedLocationClient: FusedLocationProviderClient
+
     private val viewPager: ViewPager2 by lazy {
         findViewById(R.id.ViewPager)
     }
@@ -77,25 +73,35 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     result.data?.getStringExtra(SearchLocationActivity.KEY_SUBTITLE) ?: ""
 
                 binding.locationTxt.text = subTitle
-                viewModel.moveCam(latitude, longitude)
+                viewModel.currentCamera(LatLng(latitude, longitude))
             }
         }
 
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        viewModel.init()
+        setImage()
+        currentPostion()
         permissionCheck()
         mapView.getMapAsync(this)
         settingViewpager()
         setClickListener()
-        currentbutton.setOnClickListener {
-            trackingposition()
+    }
+
+    private fun currentPostion() {
+        viewModel.currentLatlng.observe(this) {
+            viewModel.setGeoposition(getAddress(it.latitude, it.longitude))
         }
+    }
+
+    private fun setImage() {
+        binding.currentimage = R.drawable.mylocation
     }
 
     private fun setClickListener() {
         binding.currentbutton.setOnClickListener {
-            currentPosition()
+            listenerCurrentPostion()
         }
         binding.searchLocationButton.setOnClickListener {
             searchLocationActivityLauncher.launch(
@@ -117,32 +123,55 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         })
     }
 
+    fun setMapClickListener(map: NaverMap) { //데이터 바인딩 해주기
+        naverMap.setOnMapClickListener { _, coord ->
+            PlaceUtil.loseFocus(viewModel.focusedPlace.value)
+            viewModel._wigetVisibility.value = false
+        }
+    }
+
+    fun attachMarker(list: List<Place>) {
+        mapView.getMapAsync { naverMap ->
+            list.forEach { place ->
+                place.marker.setOnClickListener {
+                    viewModel.onPlaceClick(place)
+                    markertoWiget(place)
+                    true
+                }
+                place.marker.map = naverMap
+            }
+        }
+    }
+
+    fun markertoWiget(place: Place) {
+        viewModel._wigetVisibility.value = true
+        val selectedModel = viewPagerAdapter.currentList.firstOrNull {
+            it.place.id == place.id
+        }
+        selectedModel?.let {
+            val position = viewPagerAdapter.currentList.indexOf(it)
+            viewPager.currentItem = position
+        }
+        viewModel._wigetVisibility.value = true
+    }
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
-        viewModel.setMapClickListener(map)
-        trackingposition()
         this.naverMap = map
         map.locationSource = locationSource
         viewModel.getZoom(naverMap.cameraPosition.zoom)
-
+        setMapClickListener(map)
         viewModel.getAllPlace()
 
         lifecycleScope.launch {
             viewModel.placeListStateFlow.collect { uiState ->
                 when (uiState) {
                     is PBState.Success -> {
-                        viewModel.attachMarker(
-                            uiState.data,
-                            mapView,
-                            viewPager,
-                            viewPagerAdapter
-                        )
+                        attachMarker(uiState.data)
                         var itemList = mutableListOf<ViewPagerItem>()
                         uiState.data.forEach {
                             itemList.add(ViewPagerItem(it, viewModel.distancetoPlace(it)))
                         }
-                        Log.d("임민규",itemList.toString())
                         viewPagerAdapter.submitList(itemList)
                     }
                     is PBState.Error -> {
@@ -153,21 +182,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
 
         naverMap.addOnCameraChangeListener { reason, animated ->
-            if (viewModel.zoomCamera.value != naverMap.cameraPosition.zoom) {
-                Log.d("민규","1")
-                when {
-                    naverMap.cameraPosition.zoom < 13.0 -> {
-                        lifecycleScope.launch {
-                            viewModel.outZoom()
-                            viewModel.getZoom(naverMap.cameraPosition.zoom)
-                            Log.d("민규","2")
+            if (reason == REASON_GESTURE) {
+                if (viewModel.zoomCamera.value != naverMap.cameraPosition.zoom) {
+                    when {
+                        naverMap.cameraPosition.zoom < 13.0 -> {
+                            lifecycleScope.launch {
+                                viewModel.outZoom()
+                                viewModel.getZoom(naverMap.cameraPosition.zoom)
+                            }
                         }
-                    }
-                    naverMap.cameraPosition.zoom >= 15.0 -> {
-                        lifecycleScope.launch {
-                            viewModel.inZoom()
-                            viewModel.getZoom(naverMap.cameraPosition.zoom)
-                            Log.d("민규","3")
+                        naverMap.cameraPosition.zoom >= 15.0 -> {
+                            lifecycleScope.launch {
+                                viewModel.inZoom()
+                                viewModel.getZoom(naverMap.cameraPosition.zoom)
+                            }
                         }
                     }
                 }
@@ -211,7 +239,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun currentPosition() {
+    fun listenerCurrentPostion() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -220,25 +248,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            return
-        }
-        fusedLocationClient =
-            LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
-                lastLocation.addOnSuccessListener { location ->
-                    viewModel.currentPositionListener(location)
-                }
-            }
-    }
+            TedPermission.create()
+                .setPermissionListener(this)
+                .setDeniedMessage("지도,길찾기 사용을 위해\n[설정] > [권한] 을 허용해주세요.(필수권한)")
+                .setPermissions(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                .setGotoSettingButton(true)
+                .check()
 
-    fun trackingposition() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
             return
         }
 
@@ -249,21 +268,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     currentLocation = location
                     naverMap.locationOverlay.run {
                         isVisible = true
-                        position =
-                            LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
                     }
                     with(naverMap) {
                         locationTrackingMode = LocationTrackingMode.Follow
-                        binding.locationTxt.run {
-                            text = getAddress(
-                                currentLocation!!.latitude,
-                                currentLocation!!.longitude
-                            )
-                        }
                     }
+                    val currentPos = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                    viewModel.currentPositionListener(currentPos)
+                    viewModel.currentCamera(currentPos)
                 }
             }
-        currentPosition()
     }
 
     fun getAddress(lat: Double, lng: Double): String {
@@ -279,22 +293,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun permissionCheck() {
+    fun permissionCheck() { //허용을 했다면 내위치로 옮겨져야 함
         TedPermission.create()
             .setPermissionListener(this)
+            .setDeniedMessage("지도,길찾기 사용을 위해\n[설정] > [권한] 을 허용해주세요.(필수권한)")
             .setPermissions(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
+            .setGotoSettingButton(true)
             .check()
+
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
     }
 
     override fun onPermissionGranted() {
-        Toast.makeText(this@MainActivity, "위치 정보 제공되었습니다", Toast.LENGTH_SHORT).show()
+        listenerCurrentPostion()
     }
 
     override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+        viewModel.currentPositionListener(LatLng(37.497885, 127.027512))
         Toast.makeText(this@MainActivity, "위치 정보 제공이 거부되었습니다.", Toast.LENGTH_SHORT).show()
     }
 
