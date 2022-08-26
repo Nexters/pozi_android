@@ -39,8 +39,8 @@ object PlaceMapper {
                 )
             }else{
                 position = LatLng(
-                    latlng.get("_latitude") as Double,
-                    latlng.get("_longitude") as Double
+                    latlng["_latitude"] as Double,
+                    latlng["_longitude"] as Double
                 )
             }
 

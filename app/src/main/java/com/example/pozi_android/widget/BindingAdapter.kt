@@ -1,8 +1,10 @@
 package com.example.pozi_android.widget
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 
@@ -11,9 +13,14 @@ fun setText(view: TextView, text: String) {
     view.text = text
 }
 
+@BindingAdapter("setImage")
+fun setImage(imageview: ImageView, drawable: Int) {
+    Glide.with(imageview.context).load(drawable).into(imageview)
+}
+
 @BindingAdapter("setdisttext")
 fun setdisttext(view: TextView, text: Long) {
-    if(text == null)view.text = "123m"
+    if (text == null) view.text = "123m"
     else view.text = text.toString() + "m"
 }
 

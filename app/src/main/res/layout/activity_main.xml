@@ -5,9 +5,7 @@
 
     <data>
         <import type="android.view.View" />
-        <variable
-            name="activity"
-            type="com.example.pozi_android.ui.main.MainActivity" />
+        <variable name="currentimage" type="Integer" />
         <variable
             name="viewModel"
             type="com.example.pozi_android.ui.main.MainViewModel" />
@@ -22,15 +20,17 @@
             android:id="@+id/mainmap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:moveCamera="@{viewModel.moveCamera}" />
+            app:moveCamera="@{viewModel.currentCamera}"
+            tools:layout_editor_absoluteX="1dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <ImageView
             android:id="@+id/currentbutton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="16dp"
-            android:src="@drawable/mylocation"
+            app:setImage="@{currentimage}"
             app:layout_constraintBottom_toTopOf="@+id/ViewPager"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -61,7 +61,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="경기 성남시 분당구 판교역로2번길 29" />
+                app:setText="@{viewModel.geocurrentLatlng}"
+                tools:text="서울 강남구 강남대로 396" />
 
             <ImageView
                 android:id="@+id/caretdown"
