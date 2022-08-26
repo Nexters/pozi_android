@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="viewpageritem"
-            type="com.example.pozi_android.domain.entity.ViewPagerItem" />
+            name="place"
+            type="com.example.pozi_android.domain.entity.Place" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -34,7 +34,7 @@
 
             <TextView
                 android:id="@+id/distance"
-                app:setdisttext="@{viewpageritem.distance}"
+                app:setdisttext="@{place.distance}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
@@ -45,7 +45,7 @@
 
             <TextView
                 android:id="@+id/nameTextView"
-                app:settext = "@{viewpageritem.place.subject}"
+                app:settext = "@{place.subject}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -60,7 +60,7 @@
 
             <TextView
                 android:id="@+id/addressTextView"
-                app:settext = "@{viewpageritem.place.address}"
+                app:settext = "@{place.address}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"

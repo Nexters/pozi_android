@@ -22,7 +22,7 @@ fun setImage(imageview: ImageView, drawable: Int) {
 }
 
 @BindingAdapter("setdisttext")
-fun setdisttext(view: TextView, text: Long) {
+fun setdisttext(view: TextView, text: Long?) {
     if (text == null) view.text = "123m"
     else view.text = text.toString() + "m"
 }
@@ -32,17 +32,30 @@ fun setVisible(view: View, isVisible: Boolean) {
     view.visibility = if (isVisible) View.VISIBLE else View.GONE
 }
 
+@BindingAdapter("attachmarker", "onClickPlace")
+fun attachmarker(mapView: MapView, list: List<Place>, onClickPlace: (Place) -> Unit) {
+    mapView.getMapAsync { naverMap ->
+        list.forEach { place ->
+            place.marker.setOnClickListener {
+                onClickPlace(place)
+                true
+            }
+            place.marker.map = naverMap
+        }
+    }
+}
+
 @BindingAdapter("moveCamera")
 fun moveCamera(mapView: MapView, latLng: LatLng?) {
     if (latLng != null) {
         mapView.getMapAsync { naverMap ->
-            val cameraUpdate = CameraUpdate.scrollAndZoomTo(latLng, 15.0)
+            val cameraUpdate = CameraUpdate.scrollAndZoomTo(latLng, 16.0)
                 .animate(CameraAnimation.Easing)
             naverMap.moveCamera(cameraUpdate)
         }
     } else {
         mapView.getMapAsync { naverMap ->
-            val cameraUpdate = CameraUpdate.scrollAndZoomTo(LatLng(37.497885, 127.027512), 15.0)
+            val cameraUpdate = CameraUpdate.scrollAndZoomTo(LatLng(37.497885, 127.027512), 16.0)
                 .animate(CameraAnimation.Easing)
             naverMap.moveCamera(cameraUpdate)
             naverMap.uiSettings.isCompassEnabled = false

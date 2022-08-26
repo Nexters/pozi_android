@@ -42,13 +42,8 @@ object PlaceUtil {
             "인생네컷" -> {
                 place.marker.icon = OverlayImage.fromResource(R.drawable.marker_lifefourcut_on)
             }
-            "비룸" -> {
+            "비룸스튜디오" -> {
                 place.marker.icon = OverlayImage.fromResource(R.drawable.marker_broom_on)
-            }
-            else -> {
-                MarkerIcons.RED.also {
-                    com.naver.maps.map.R.drawable.navermap_default_marker_icon_red
-                }
             }
         }
     }
@@ -78,13 +73,8 @@ object PlaceUtil {
             "인생네컷" -> {
                 place.marker.icon = OverlayImage.fromResource(R.drawable.marker_lifefourcut_off)
             }
-            "비룸" -> {
+            "비룸스튜디오" -> {
                 place.marker.icon = OverlayImage.fromResource(R.drawable.marker_broom_off)
-            }
-            else -> {
-                MarkerIcons.BLACK.also {
-                    com.naver.maps.map.R.drawable.navermap_default_marker_icon_black
-                }
             }
         }
     }
