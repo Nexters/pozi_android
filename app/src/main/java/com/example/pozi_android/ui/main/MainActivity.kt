@@ -80,7 +80,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        viewModel.init()
         setImage()
         currentPostion()
         permissionCheck()
@@ -123,10 +122,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         })
     }
 
-    fun setMapClickListener(map: NaverMap) { //데이터 바인딩 해주기
+    fun setMapClickListener(map: NaverMap) {
         naverMap.setOnMapClickListener { _, coord ->
             PlaceUtil.loseFocus(viewModel.focusedPlace.value)
-            viewModel._wigetVisibility.value = false
+            viewModel.turnwigetVisible(false)
         }
     }
 
@@ -144,7 +143,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     fun markertoWiget(place: Place) {
-        viewModel._wigetVisibility.value = true
+        viewModel.turnwigetVisible(true)
         val selectedModel = viewPagerAdapter.currentList.firstOrNull {
             it.place.id == place.id
         }
@@ -152,7 +151,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             val position = viewPagerAdapter.currentList.indexOf(it)
             viewPager.currentItem = position
         }
-        viewModel._wigetVisibility.value = true
+        viewModel.turnwigetVisible(true)
     }
 
     @UiThread
@@ -293,7 +292,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun permissionCheck() { //허용을 했다면 내위치로 옮겨져야 함
+    fun permissionCheck() {
         TedPermission.create()
             .setPermissionListener(this)
             .setDeniedMessage("지도,길찾기 사용을 위해\n[설정] > [권한] 을 허용해주세요.(필수권한)")

@@ -5,6 +5,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.ui.main.state.PBState
+import com.example.pozi_android.ui.main.state.PBState.Success
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 
