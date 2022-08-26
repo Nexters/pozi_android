@@ -29,7 +29,7 @@ class MainViewModel @Inject constructor(
     private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
     val placeListStateFlow: StateFlow<PBState> = _placeListStateFlow.asStateFlow()
 
-    val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData() //private 해줘도 되는지 확인 하기
+    private val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
     val wigetVisibility: LiveData<Boolean> = _wigetVisibility
 
     private val _zoomCamera: MutableLiveData<Double> = MutableLiveData()
@@ -47,8 +47,8 @@ class MainViewModel @Inject constructor(
     private val _geocurrentLatlng: MutableLiveData<String> = MutableLiveData()
     val geocurrentLatlng: LiveData<String> = _geocurrentLatlng
 
-    fun init() {
-        _geocurrentLatlng.postValue("서울특별시 강남구 역삼동 858-50")
+    fun turnwigetVisible(visible:Boolean){
+        _wigetVisibility.postValue(visible)
     }
 
     fun setGeoposition(position: String) {
