@@ -9,32 +9,32 @@ import com.bumptech.glide.Glide
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
 import com.example.pozi_android.domain.entity.Place
-import com.example.pozi_android.domain.entity.ViewPagerItem
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<ViewPagerItem, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<Place, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    var findLoadClickListener: ((ViewPagerItem?) -> Unit)? = null
+    var findLoadClickListener: ((Place?) -> Unit)? = null
 
     inner class ItemViewHolder(private val binding: ItemPbViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
             binding.findLoadButton.setOnClickListener {
-                findLoadClickListener?.invoke(binding.viewpageritem)
+                findLoadClickListener?.invoke(binding.place)
             }
         }
 
-        fun bind(item: ViewPagerItem) {
-            binding.viewpageritem = item
-            when (item.place.brandName) {
+        fun bind(item: Place) {
+            binding.place = item
+            when (item.brandName) {
+                "인생네컷" -> setImage(R.drawable.brand_lifefourcut)
                 "포토매틱" -> setImage(R.drawable.brand_photomatic)
                 "하루필름" -> setImage(R.drawable.brand_harufilm)
                 "셀픽스" -> setImage(R.drawable.brand_selfix)
                 "포토드링크" -> setImage(R.drawable.brand_photodrink)
                 "포토그레이" -> setImage(R.drawable.brand_photogray)
                 "포토이즘" -> setImage(R.drawable.brand_photoism)
-                "비룸" -> setImage(R.drawable.brand_broom)
+                "비룸스튜디오" -> setImage(R.drawable.brand_broom)
             }
         }
 
@@ -59,12 +59,12 @@ class MainPBInfoPagerAdapter :
     }
 
     companion object {
-        val differ = object : DiffUtil.ItemCallback<ViewPagerItem>() {
-            override fun areItemsTheSame(oldItem: ViewPagerItem, newItem: ViewPagerItem): Boolean {
-                return oldItem.place.id == newItem.place.id
+        val differ = object : DiffUtil.ItemCallback<Place>() {
+            override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
+                return oldItem == newItem
             }
 
-            override fun areContentsTheSame(oldItem: ViewPagerItem, newItem: ViewPagerItem): Boolean {
+            override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
                 return oldItem == newItem
             }
         }

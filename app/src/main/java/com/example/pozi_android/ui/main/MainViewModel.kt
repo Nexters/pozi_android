@@ -1,11 +1,12 @@
 package com.example.pozi_android.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.DataResult
+import com.example.pozi_android.domain.mapper.PBEntityMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListLocationUseCase
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.util.PlaceUtil
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.roundToLong
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -47,7 +47,7 @@ class MainViewModel @Inject constructor(
     private val _geocurrentLatlng: MutableLiveData<String> = MutableLiveData()
     val geocurrentLatlng: LiveData<String> = _geocurrentLatlng
 
-    fun turnwigetVisible(visible:Boolean){
+    fun turnwigetVisible(visible: Boolean) {
         _wigetVisibility.postValue(visible)
     }
 
@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
         _geocurrentLatlng.postValue(position)
     }
 
-    fun getZoom(zoom: Double) {
+    fun setZoom(zoom: Double) {
         _zoomCamera.postValue(zoom)
     }
 
@@ -103,24 +103,28 @@ class MainViewModel @Inject constructor(
         return true
     }
 
-    fun distancetoPlace(place: Place): Long? =
-        _currentLatlng.value?.distanceTo(place.marker.position)?.roundToLong()
-
-
     fun setFocusedPlace(place: Place) {
         PlaceUtil.loseFocus(_focusedPlace.value)
         PlaceUtil.getFocus(place)
         _focusedPlace.value = place
         _currentCamera.value = place.marker.position
+        setZoom(16.0)
+        CoroutineScope(Dispatchers.IO).launch{
+            inZoom()
+        }
     }
 
-    fun getAllPlace() {
+    fun getPBListChangeAdress() {
         _placeListStateFlow.value = PBState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
             when (val result = getPBListUseCase(_currentLatlng.value)) {
                 is DataResult.Success -> {
-                    _placeListStateFlow.value = PBState.Success(result.data)
+                    var id: Long = 0
+                    val placelist: List<Place> = result.data.map {
+                        PBEntityMapper.PBEntityToPlace(id++, it)
+                    }
+                    _placeListStateFlow.value = PBState.Success(placelist)
                 }
                 is DataResult.NoData -> {
                     _placeListStateFlow.value = PBState.NoData
@@ -131,6 +135,7 @@ class MainViewModel @Inject constructor(
             }
             _focusedPlace.postValue(null)
         }
+
     }
 
 }
