@@ -1,16 +1,33 @@
 package com.example.pozi_android.widget
 
+import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.example.pozi_android.ui.main.CustomMarker
+import com.example.pozi_android.ui.main.state.PBState
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 
 @BindingAdapter("settext")
 fun setText(view: TextView, text: String) {
     view.text = text
+}
+
+@BindingAdapter("noDataVisible")
+fun noDataVisible(view: View, pbState: PBState) {
+    when (pbState) {
+        is PBState.NoData -> {
+            view.visibility = View.VISIBLE
+        }
+        else -> {
+            view.visibility = View.GONE
+        }
+    }
 }
 
 @BindingAdapter("setImage")
@@ -27,10 +44,10 @@ fun setdisttext(view: TextView, text: Long?) {
 @BindingAdapter("naverlogoposition")
 fun naverlogoposition(mapView: MapView, isVisible: Boolean) {
     mapView.getMapAsync { naverMap ->
-        if(isVisible){
-            naverMap.uiSettings.setLogoMargin(65,0,0,750)
-        }else{
-            naverMap.uiSettings.setLogoMargin(65,0,0,50)
+        if (isVisible) {
+            naverMap.uiSettings.setLogoMargin(65, 0, 0, 750)
+        } else {
+            naverMap.uiSettings.setLogoMargin(65, 0, 0, 50)
         }
     }
 }

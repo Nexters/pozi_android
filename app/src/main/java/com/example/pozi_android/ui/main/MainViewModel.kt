@@ -28,7 +28,7 @@ class MainViewModel @Inject constructor(
     private val getPBListUseCase: GetPhotoBoothListLocationUseCase,
 ) : ViewModel() {
 
-    private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.NoData)
+    private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.Init)
     val placeListStateFlow: StateFlow<PBState> = _placeListStateFlow.asStateFlow()
 
     private val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
@@ -51,10 +51,6 @@ class MainViewModel @Inject constructor(
 
     fun turnwigetVisible(visible: Boolean) {
         _wigetVisibility.postValue(visible)
-    }
-
-    fun setGeoposition(position: String) {
-        _geocurrentLatlng.postValue(position)
     }
 
     fun setZoom(zoom: Double) {
@@ -136,7 +132,6 @@ class MainViewModel @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             when (val result = getPBListUseCase(_currentLatlng.value)) {
                 is DataResult.Success -> {
-                    Log.d("임민규",result.data.toString())
                     var id: Long = 0
                     val placelist: List<CustomMarker> = result.data.map {
                         PBEntityMapper.PBEntityToCustomMarker(id++, it)
