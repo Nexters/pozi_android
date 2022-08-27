@@ -1,10 +1,12 @@
 <resources>
-    <string name="app_name">pozi_android</string>
+    <string name="app_name">POZI</string>
     <string name = "findLoad_naver_url">nmap://route/walk?dlat=%s&amp;dlng=%s&amp;dname=%s</string>
     <string name = "findLoad_kakao_url">kakaomap://route?ep=%s,%s&amp;by=FOOT</string>
     <string name = "googlePlayStore_kakao_url">market://details?id=net.daum.android.map</string>
     <string name = "googlePlayStore_naver_url">market://details?id=com.nhn.android.nmap</string>
     <string name = "Gangnam_lat">37.497885</string>
     <string name = "Gangnam_lon">127.027512</string>
-
+    <string name = "googlePlayStore_guide_comment">해당 앱이 설치되어 있지 않으므로 플레이스토어로 이동합니다.</string>
+    <string name = "locationPermission_guide_comment">지도,길찾기 사용을 위해 \n [설정] > [권한] 을 허용해주세요.(필수권한)</string>
+    <string name = "permission_reject_guide_comment">위치 정보 제공이 거부되었습니다.</string>
 </resources>

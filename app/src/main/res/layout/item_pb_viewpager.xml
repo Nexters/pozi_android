@@ -6,7 +6,7 @@
     <data>
         <variable
             name="place"
-            type="com.example.pozi_android.ui.main.Place" />
+            type="com.example.pozi_android.ui.main.CustomMarker" />
     </data>
 
     <androidx.cardview.widget.CardView

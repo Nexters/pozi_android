@@ -2,7 +2,9 @@ package com.example.pozi_android.ui.searchLocation
 
 import android.content.Intent
 import android.location.Geocoder
+import android.opengl.Visibility
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.pozi_android.R
@@ -23,14 +25,26 @@ class SearchLocationActivity :
     private val viewModel by viewModels<SearchLocationViewModel>()
 
     private lateinit var addressAdapter: SearchLocationAdapter
-    private lateinit var geocoder: Geocoder
+    //private lateinit var geocoder: Geocoder
 
     override fun initView() {
+        binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        geocoder = Geocoder(this, Locale.KOREA)
+        //geocoder = Geocoder(this, Locale.KOREA)
         setRecyclerView()
         setListeners()
         setObservers()
+        setClickListener()
+    }
+
+    private fun setClickListener(){
+        binding.backButton.setOnClickListener {
+            finish()
+        }
+        binding.clearButton.setOnClickListener {
+            binding.searchText.text = null
+            binding.clearButton.visibility = View.GONE
+        }
     }
 
     @OptIn(FlowPreview::class)
@@ -41,8 +55,8 @@ class SearchLocationActivity :
                 it?.isBlank() != true
             }
             .onEach {
-                Log.d("Sangeun", it.toString())
-                viewModel.getAddress(geocoder, it.toString())
+                binding.clearButton.visibility = View.VISIBLE
+                viewModel.getAddress(it.toString())
             }
             .launchIn(lifecycleScope)
     }

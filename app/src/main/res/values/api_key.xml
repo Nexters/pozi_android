@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="naver_map_client_id">p5grw6ifb4</string>
+    <string name="KAKAO_API_KEY">KakaoAK a41e8f6fd5dbc21b6f7c175dcbf7fec1</string>
 </resources>
