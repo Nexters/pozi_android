@@ -4,7 +4,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
-import com.example.pozi_android.ui.main.Place
+import com.example.pozi_android.ui.main.CustomMarker
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 
@@ -36,7 +36,7 @@ fun naverlogoposition(mapView: MapView, isVisible: Boolean) {
 }
 
 @BindingAdapter("attachmarker", "onClickPlace")
-fun attachmarker(mapView: MapView, list: List<Place>, onClickPlace: (Place) -> Unit) {
+fun attachmarker(mapView: MapView, list: List<CustomMarker>, onClickPlace: (CustomMarker) -> Unit) {
     mapView.getMapAsync { naverMap ->
         list.forEach { place ->
             place.marker.setOnClickListener {

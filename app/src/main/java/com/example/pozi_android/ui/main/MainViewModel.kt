@@ -1,5 +1,7 @@
 package com.example.pozi_android.ui.main
 
+import android.location.Geocoder
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,7 +9,7 @@ import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.mapper.PBEntityMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListLocationUseCase
 import com.example.pozi_android.ui.main.state.PBState
-import com.example.pozi_android.util.PlaceUtil
+import com.example.pozi_android.util.CustomMarkerUtil
 import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,8 +37,8 @@ class MainViewModel @Inject constructor(
     private val _zoomCamera: MutableLiveData<Double> = MutableLiveData()
     val zoomCamera: LiveData<Double> = _zoomCamera
 
-    private val _focusedPlace = MutableLiveData<Place?>()
-    val focusedPlace: LiveData<Place?> = _focusedPlace
+    private val _focusedPlace = MutableLiveData<CustomMarker?>()
+    val focusedCustomMarker: LiveData<CustomMarker?> = _focusedPlace
 
     private val _currentLatlng: MutableLiveData<LatLng> = MutableLiveData()
     val currentLatlng: LiveData<LatLng> = _currentLatlng
@@ -62,7 +66,7 @@ class MainViewModel @Inject constructor(
             when (uiState) {
                 is PBState.Success -> {
                     uiState.data.forEach {
-                        PlaceUtil.transMarker(it)
+                        CustomMarkerUtil.transMarker(it)
                     }
                 }
             }
@@ -76,10 +80,10 @@ class MainViewModel @Inject constructor(
                     uiState.data.forEach {
                         if (_focusedPlace.value != null) {
                             val focus = _focusedPlace.value
-                            if (it == focus) PlaceUtil.getFocus(it)
-                            else PlaceUtil.loseFocus(it)
+                            if (it == focus) CustomMarkerUtil.getFocus(it)
+                            else CustomMarkerUtil.loseFocus(it)
                         } else {
-                            PlaceUtil.loseFocus(it)
+                            CustomMarkerUtil.loseFocus(it)
                         }
                     }
                 }
@@ -95,21 +99,35 @@ class MainViewModel @Inject constructor(
         _currentCamera.postValue(LatLng(latLng.latitude, latLng.longitude))
     }
 
-    fun onPlaceClick(clickedPlace: Place): Boolean {
-        if (_focusedPlace.value == clickedPlace) return true
-        setFocusedPlace(clickedPlace)
+    fun onPlaceClick(clickedCustomMarker: CustomMarker): Boolean {
+        if (_focusedPlace.value == clickedCustomMarker) return true
+        setFocusedPlace(clickedCustomMarker)
         return true
     }
 
-    fun setFocusedPlace(place: Place) {
-        PlaceUtil.loseFocus(_focusedPlace.value)
-        PlaceUtil.getFocus(place)
-        _focusedPlace.value = place
-        _currentCamera.value = place.marker.position
+    fun setFocusedPlace(customMarker: CustomMarker) {
+        CustomMarkerUtil.loseFocus(_focusedPlace.value)
+        CustomMarkerUtil.getFocus(customMarker)
+        _focusedPlace.value = customMarker
+        _currentCamera.value = customMarker.marker.position
         setZoom(16.0)
-        CoroutineScope(Dispatchers.IO).launch{
+        CoroutineScope(Dispatchers.IO).launch {
             inZoom()
         }
+    }
+
+    fun getAddress(geocoder: Geocoder, latLng: LatLng) {
+        val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).firstOrNull()
+        val fullAddress = address?.getAddressLine(0).toString()
+        val contry = address?.countryName ?: "null"
+        if (contry != "대한민국") {
+            _geocurrentLatlng.value = "주소를 가져 올 수 없습니다."
+            return
+        }
+        val countryLength = address?.countryName?.length ?: -1
+        val result = fullAddress.substring(countryLength + 1)
+
+        _geocurrentLatlng.value = result
     }
 
     fun getPBListChangeAdress() {
@@ -118,9 +136,10 @@ class MainViewModel @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             when (val result = getPBListUseCase(_currentLatlng.value)) {
                 is DataResult.Success -> {
+                    Log.d("임민규",result.data.toString())
                     var id: Long = 0
-                    val placelist: List<Place> = result.data.map {
-                        PBEntityMapper.PBEntityToPlace(id++, it)
+                    val placelist: List<CustomMarker> = result.data.map {
+                        PBEntityMapper.PBEntityToCustomMarker(id++, it)
                     }
                     _placeListStateFlow.value = PBState.Success(placelist)
                 }

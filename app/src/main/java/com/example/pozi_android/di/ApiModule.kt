@@ -1,8 +1,10 @@
 package com.example.pozi_android.di
 
 import com.example.pozi_android.BuildConfig
+import com.example.pozi_android.data.remote.network.KakaoAPI
 import com.example.pozi_android.data.remote.network.RetrofitInterface
 import com.example.pozi_android.data.remote.url.LocationsUrl
+import com.example.pozi_android.data.remote.url.SearchUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +20,7 @@ import javax.inject.Singleton
 object ApiModule {
 
     @Provides
-    fun provideBaseUrl() = LocationsUrl.BASE_URL
+    fun provideBaseUrl() = SearchUrl.SEARCH_BASE_URL
 
     @Singleton
     @Provides
@@ -44,8 +46,8 @@ object ApiModule {
 
     @Singleton
     @Provides
-    fun provideApiService(retrofit: Retrofit): RetrofitInterface {
-        return retrofit.create(RetrofitInterface::class.java)
+    fun provideApiService(retrofit: Retrofit): KakaoAPI {
+        return retrofit.create(KakaoAPI::class.java)
     }
 
 

@@ -10,9 +10,9 @@ import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<Place, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<CustomMarker, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    var findLoadClickListener: ((Place?) -> Unit)? = null
+    var findLoadClickListener: ((CustomMarker?) -> Unit)? = null
 
     inner class ItemViewHolder(private val binding: ItemPbViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -23,7 +23,7 @@ class MainPBInfoPagerAdapter :
             }
         }
 
-        fun bind(item: Place) {
+        fun bind(item: CustomMarker) {
             binding.place = item
             when (item.brandName) {
                 "인생네컷" -> setImage(R.drawable.brand_lifefourcut)
@@ -58,12 +58,12 @@ class MainPBInfoPagerAdapter :
     }
 
     companion object {
-        val differ = object : DiffUtil.ItemCallback<Place>() {
-            override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
+        val differ = object : DiffUtil.ItemCallback<CustomMarker>() {
+            override fun areItemsTheSame(oldItem: CustomMarker, newItem: CustomMarker): Boolean {
                 return oldItem == newItem
             }
 
-            override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
+            override fun areContentsTheSame(oldItem: CustomMarker, newItem: CustomMarker): Boolean {
                 return oldItem == newItem
             }
         }

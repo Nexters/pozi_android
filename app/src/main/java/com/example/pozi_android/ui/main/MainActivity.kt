@@ -21,7 +21,7 @@ import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBindi
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
-import com.example.pozi_android.util.PlaceUtil
+import com.example.pozi_android.util.CustomMarkerUtil
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -46,6 +46,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     lateinit var naverMap: NaverMap
     private lateinit var locationSource: FusedLocationSource
     lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private lateinit var geocoder: Geocoder
 
     private val viewPager: ViewPager2 by lazy {
         findViewById(R.id.ViewPager)
@@ -79,6 +81,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        geocoder = Geocoder(this, Locale.KOREA)
         setImage()
         currentPosition()
         permissionCheck()
@@ -90,7 +93,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     private fun currentPosition() {
         viewModel.currentLatlng.observe(this) {
-            viewModel.setGeoposition(getAddress(it))
+            viewModel.getAddress(geocoder,it)
             viewModel.getPBListChangeAdress()
         }
     }
@@ -131,12 +134,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     fun setMapClickListener(map: NaverMap) {
         naverMap.setOnMapClickListener { _, coord ->
-            PlaceUtil.loseFocus(viewModel.focusedPlace.value)
+            CustomMarkerUtil.loseFocus(viewModel.focusedCustomMarker.value)
             viewModel.turnwigetVisible(false)
         }
     }
 
-    private fun attachMarker(list: List<Place>) {
+    private fun attachMarker(list: List<CustomMarker>) {
         if (viewPagerAdapter.currentList != null) {
             val prevplacelist = viewPagerAdapter.currentList
             mapView.getMapAsync { naverMap ->
@@ -157,10 +160,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    fun markertoWiget(place: Place) {
+    fun markertoWiget(customMarker: CustomMarker) {
         viewModel.turnwigetVisible(true)
         val selectedModel = viewPagerAdapter.currentList.firstOrNull {
-            it.id == place.id
+            it.id == customMarker.id
         }
         selectedModel?.let {
             val position = viewPagerAdapter.currentList.indexOf(it)
@@ -191,7 +194,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         map.locationSource = locationSource
         viewModel.setZoom(naverMap.cameraPosition.zoom)
         setMapClickListener(map)
-        //viewModel.getPBListChangeAdress()
 
         naverMap.addOnCameraChangeListener { reason, animated ->
             if (reason == REASON_GESTURE) {
@@ -216,7 +218,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     }
 
-    fun showMapAppList(item: Place?) {
+    fun showMapAppList(item: CustomMarker?) {
         if (item == null) return
         var id: Int
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
@@ -250,7 +252,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(this, "해당 앱이 설치되어 있지 않으므로 플레이스토어로 이동합니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                getString(R.string.googlePlayStore_guide_comment),
+                Toast.LENGTH_SHORT
+            ).show()
             if (id == 0) {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
@@ -278,7 +284,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         ) {
             TedPermission.create()
                 .setPermissionListener(this)
-                .setDeniedMessage("지도,길찾기 사용을 위해\n[설정] > [권한] 을 허용해주세요.(필수권한)")
+                .setDeniedMessage(getString(R.string.locationPermission_guide_comment))
                 .setPermissions(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -301,29 +307,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         locationTrackingMode = LocationTrackingMode.Follow
                     }
                     viewModel.currentCamera(currentLocation)
-                    viewModel.setGeoposition(getAddress(currentLocation))
+                    viewModel.getAddress(geocoder,currentLocation)
                 }
             }
-    }
-
-    fun getAddress(latLng: LatLng): String {
-        return try {
-            val address =
-                Geocoder(this, Locale.KOREA).getFromLocation(latLng.latitude, latLng.longitude, 1)
-                    .firstOrNull()
-            val fullAddress = address?.getAddressLine(0).toString()
-            val countryLength = address?.countryName?.length ?: -1
-            fullAddress.substring(countryLength + 1)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            "주소를 가져 올 수 없습니다."
-        }
     }
 
     fun permissionCheck() {
         TedPermission.create()
             .setPermissionListener(this)
-            .setDeniedMessage("지도,길찾기 사용을 위해\n[설정] > [권한] 을 허용해주세요.(필수권한)")
+            .setDeniedMessage(getString(R.string.locationPermission_guide_comment))
             .setPermissions(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -364,14 +356,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     }
 
     override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-        viewModel.currentPositionListener(LatLng(Gangnam_Lat, Gangnam_Lng))
-        Toast.makeText(this@MainActivity, "위치 정보 제공이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+        viewModel.currentPositionListener(LatLng(gangnamLat, gangnamLng))
+        Toast.makeText(
+            this@MainActivity,
+            getString(R.string.permission_reject_guide_comment),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         private const val TAG = "MainActivity"
-        private const val Gangnam_Lat = 37.497885
-        private const val Gangnam_Lng = 127.027512
+        private const val gangnamLat = 37.497885
+        private const val gangnamLng = 127.027512
     }
 }

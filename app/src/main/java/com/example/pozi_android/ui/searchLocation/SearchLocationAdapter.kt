@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.databinding.ItemSearchAddressBinding
 
 class SearchLocationAdapter(
-    private var list: List<LocationModel>,
-    private val onClick: (LocationModel) -> Unit,
+    private var list: List<SearchModel>,
+    private val onClick: (SearchModel) -> Unit,
 ) : RecyclerView.Adapter<SearchLocationAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,14 +24,14 @@ class SearchLocationAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(list[position])
     override fun getItemCount(): Int = list.size
 
-    fun updateList(updatedList: List<LocationModel>) {
+    fun updateList(updatedList: List<SearchModel>) {
         list = updatedList
         notifyDataSetChanged()
     }
 
     class ViewHolder(
         private val binding: ItemSearchAddressBinding,
-        onClick: (LocationModel) -> Unit
+        onClick: (SearchModel) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -40,7 +40,7 @@ class SearchLocationAdapter(
             }
         }
 
-        fun bind(item: LocationModel) {
+        fun bind(item: SearchModel) {
             binding.model = item
         }
     }
