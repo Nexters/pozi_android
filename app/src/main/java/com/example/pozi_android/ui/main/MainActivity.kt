@@ -34,7 +34,6 @@ import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.util.*
 
 
@@ -139,7 +138,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
-    private fun attachMarker(list: List<CustomMarker>) {
+    private fun deleteAllMarker() {
         if (viewPagerAdapter.currentList != null) {
             val prevplacelist = viewPagerAdapter.currentList
             mapView.getMapAsync { naverMap ->
@@ -148,6 +147,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 }
             }
         }
+        viewModel.turnwigetVisible(false)
+    }
+
+    private fun attachMarker(list: List<CustomMarker>) {
+        deleteAllMarker()
         mapView.getMapAsync { naverMap ->
             list.forEach { place ->
                 place.marker.setOnClickListener {
@@ -180,8 +184,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                         attachMarker(uiState.data)
                         viewPagerAdapter.submitList(uiState.data)
                     }
+                    is PBState.NoData -> {
+                        deleteAllMarker()
+                    }
                     is PBState.Error -> {
-                        Log.d("임민규", "ERROR")
+                        Log.d("임민규", "에러")
                     }
                 }
             }

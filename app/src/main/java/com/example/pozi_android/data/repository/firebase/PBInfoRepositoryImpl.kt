@@ -25,19 +25,19 @@ class PBInfoRepositoryImpl(
                 var placeList = mutableListOf<PBEntity>()
                 response.documents.map {
                     var coord: Map<String, Double> = it.get("coordinates") as Map<String, Double>
-                    val data_latlng = LatLng(coord["_latitude"] as Double, coord["_longitude"] as Double)
+                    val data_latlng =
+                        LatLng(coord["_latitude"] as Double, coord["_longitude"] as Double)
                     val dis = data_latlng.distanceTo(latLng)
                     if (dis <= 5000) {
-                        placeList.add(PBEntityMapper.mapperToPBEntity(dis,it))
+                        placeList.add(PBEntityMapper.mapperToPBEntity(dis, it))
                     }
                 }
-                Log.d("임민규",placeList.toString())
-                placeList= placeList.sortedBy { it.distance } as MutableList<PBEntity>
-                Log.d("임민규",placeList.toString())
-                DataResult.Success(placeList.toList())
-
+                if (placeList.isEmpty()) DataResult.NoData
+                else {
+                    placeList = placeList.sortedBy { it.distance } as MutableList<PBEntity>
+                    DataResult.Success(placeList.toList())
+                }
             } catch (e: Exception) {
-                Log.e("우라라", e.toString())
                 DataResult.Error("서버와 연결오류")
             }
         }
