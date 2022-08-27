@@ -3,9 +3,8 @@ package com.example.pozi_android.util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import com.example.pozi_android.R
-import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.ui.main.Place
 import com.naver.maps.map.overlay.OverlayImage
-import com.naver.maps.map.util.MarkerIcons
 import kotlinx.coroutines.launch
 
 object PlaceUtil {

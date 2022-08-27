@@ -1,6 +1,6 @@
 package com.example.pozi_android.ui.main.state
 
-import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.ui.main.Place
 
 sealed class PBState {
     object Loading : PBState()

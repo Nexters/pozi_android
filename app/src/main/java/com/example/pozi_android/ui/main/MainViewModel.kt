@@ -1,10 +1,8 @@
 package com.example.pozi_android.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.mapper.PBEntityMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListLocationUseCase

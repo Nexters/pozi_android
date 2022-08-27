@@ -3,7 +3,6 @@ package com.example.pozi_android.data.repository.firebase
 import android.util.Log
 import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.domain.mapper.PBEntityMapper
 import com.example.pozi_android.domain.repository.PBInfoRepository
 import com.google.firebase.firestore.FirebaseFirestore

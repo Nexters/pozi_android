@@ -2,7 +2,7 @@ package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.R
 import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.domain.entity.Place
+import com.example.pozi_android.ui.main.Place
 import com.google.firebase.firestore.DocumentSnapshot
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker

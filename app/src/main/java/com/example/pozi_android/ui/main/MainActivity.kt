@@ -18,7 +18,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ActivityMainBinding
 import com.example.pozi_android.databinding.SelectMapApplicationBottomSheetBinding
-import com.example.pozi_android.domain.entity.Place
 import com.example.pozi_android.ui.base.BaseActivity
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.ui.searchLocation.SearchLocationActivity
@@ -219,6 +218,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     fun showMapAppList(item: Place?) {
         if (item == null) return
+        var id: Int
         val binding = SelectMapApplicationBottomSheetBinding.inflate(layoutInflater).apply {
             naverImage.setOnClickListener {
                 val url = getString(
@@ -227,7 +227,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     item.marker.position.longitude.toString(),
                     item.address
                 )
-                executeMap(url)
+                id = 0
+                executeMap(url, id)
             }
             kakaoImage.setOnClickListener {
                 val url = getString(
@@ -235,7 +236,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     item.marker.position.latitude.toString(),
                     item.marker.position.longitude.toString()
                 )
-                executeMap(url)
+                id = 1
+                executeMap(url, id)
             }
         }
         BottomSheetDialog(this, R.style.AppBottomSheetDialogTheme).apply {
@@ -243,12 +245,25 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }.show()
     }
 
-    fun executeMap(url: String) {
+    fun executeMap(url: String, id: Int) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
-        } catch (e: Exception) {  // 만약 실행이 안된다면 (앱이 없다면)
-            Toast.makeText(this, "해당 앱이 설치되어 있지 않습니다.", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "해당 앱이 설치되어 있지 않으므로 플레이스토어로 이동합니다.", Toast.LENGTH_SHORT).show()
+            if (id == 0) {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(getString(R.string.googlePlayStore_naver_url))
+                )
+                startActivity(intent)
+            } else {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(getString(R.string.googlePlayStore_kakao_url))
+                )
+                startActivity(intent)
+            }
         }
     }
 

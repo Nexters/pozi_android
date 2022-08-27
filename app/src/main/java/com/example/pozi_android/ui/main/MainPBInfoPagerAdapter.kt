@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
-import com.example.pozi_android.domain.entity.Place
 
 class MainPBInfoPagerAdapter :
     ListAdapter<Place, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {

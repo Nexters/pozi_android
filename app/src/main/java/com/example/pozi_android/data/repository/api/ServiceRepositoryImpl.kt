@@ -2,7 +2,7 @@
 //
 //import com.example.pozi_android.data.remote.network.RetrofitInterface
 //import com.example.pozi_android.domain.entity.DataResult
-//import com.example.pozi_android.domain.entity.Place
+//import com.example.pozi_android.ui.main.Place
 //import com.example.pozi_android.domain.mapper.PlaceMapper
 //import com.example.pozi_android.domain.repository.ServiceRepository
 //import kotlinx.coroutines.CoroutineDispatcher

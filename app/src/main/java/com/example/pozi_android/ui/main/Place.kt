@@ -1,4 +1,4 @@
-package com.example.pozi_android.domain.entity
+package com.example.pozi_android.ui.main
 
 import com.naver.maps.map.overlay.Marker
 
