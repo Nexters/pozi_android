@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pozi_android.databinding.ItemSearchAddressBinding
+import com.example.pozi_android.ui.searchLocation.model.SearchModel
 
 class SearchLocationAdapter(
     private var list: List<SearchModel>,

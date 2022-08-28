@@ -11,7 +11,7 @@ import javax.inject.Inject
 class GetSearchListUseCase @Inject constructor(
     private val searchRepository: KakaoSearchRepository
 ) {
-    suspend operator fun invoke(keyword : String): DataResult<ResultSearchKeyword?> {
+    suspend operator fun invoke(keyword: String): DataResult<ResultSearchKeyword> {
         return searchRepository.getSearchKeyword(keyword)
     }
 }

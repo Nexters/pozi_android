@@ -2,7 +2,7 @@ package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.R
 import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.ui.main.CustomMarker
+import com.example.pozi_android.ui.main.model.CustomMarkerModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
@@ -20,8 +20,8 @@ object PBEntityMapper {
             distance = dis.roundToLong()
         )
 
-    fun PBEntityToCustomMarker(id: Long, pbEntity: PBEntity): CustomMarker =
-        CustomMarker(
+    fun PBEntityToCustomMarker(id: Long, pbEntity: PBEntity): CustomMarkerModel =
+        CustomMarkerModel(
             id = id,
             marker = PBEntityToMarker(id,pbEntity),
             address = pbEntity.address,

@@ -9,8 +9,7 @@ import javax.inject.Inject
 class GetPhotoBoothListLocationUseCase @Inject constructor(
     private val repository: PBInfoRepository
 ) {
-    suspend operator fun invoke(latLng: LatLng?): DataResult<List<PBEntity>> {
-        if (latLng == null) return repository.getPBLocation(LatLng(37.497885, 127.027512))
+    suspend operator fun invoke(latLng: LatLng): DataResult<List<PBEntity>> {
         return repository.getPBLocation(latLng)
     }
 }

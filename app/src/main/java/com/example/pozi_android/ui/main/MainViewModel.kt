@@ -2,12 +2,11 @@ package com.example.pozi_android.ui.main
 
 import android.location.Geocoder
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pozi_android.domain.entity.DataResult
 import com.example.pozi_android.domain.mapper.PBEntityMapper
 import com.example.pozi_android.domain.usecase.GetPhotoBoothListLocationUseCase
+import com.example.pozi_android.ui.main.model.CustomMarkerModel
 import com.example.pozi_android.ui.main.state.PBState
 import com.example.pozi_android.util.CustomMarkerUtil
 import com.naver.maps.geometry.LatLng
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.io.IOException
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,55 +28,43 @@ class MainViewModel @Inject constructor(
     private val _placeListStateFlow: MutableStateFlow<PBState> = MutableStateFlow(PBState.Init)
     val placeListStateFlow: StateFlow<PBState> = _placeListStateFlow.asStateFlow()
 
-    private val _wigetVisibility: MutableLiveData<Boolean> = MutableLiveData()
-    val wigetVisibility: LiveData<Boolean> = _wigetVisibility
+    private val _wigetVisibilityStateFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val wigetVisibilityStateFlow: StateFlow<Boolean> = _wigetVisibilityStateFlow.asStateFlow()
 
-    private val _zoomCamera: MutableLiveData<Double> = MutableLiveData()
-    val zoomCamera: LiveData<Double> = _zoomCamera
+    private val _zoomCamera: MutableStateFlow<Double> = MutableStateFlow(16.0)
+    val zoomCamera: StateFlow<Double> = _zoomCamera.asStateFlow()
 
-    private val _focusedPlace = MutableLiveData<CustomMarker?>()
-    val focusedCustomMarker: LiveData<CustomMarker?> = _focusedPlace
+    private val _focusedCustomMarkerModelStateFlow: MutableStateFlow<CustomMarkerModel?> =
+        MutableStateFlow(null)
+    val focusedCustomMarkerModelStateFlow: StateFlow<CustomMarkerModel?> = _focusedCustomMarkerModelStateFlow
 
-    private val _currentLatlng: MutableLiveData<LatLng> = MutableLiveData()
-    val currentLatlng: LiveData<LatLng> = _currentLatlng
+    private val _currentLatlngStateFlow: MutableStateFlow<LatLng> =
+        MutableStateFlow(LatLng.INVALID)
+    val currentLatlngStateFlow: StateFlow<LatLng> = _currentLatlngStateFlow.asStateFlow()
 
-    private val _currentCamera: MutableLiveData<LatLng> = MutableLiveData()
-    val currentCamera: LiveData<LatLng> = _currentCamera
+    private val _geocurrentLatlngStateFlow: MutableStateFlow<String> =
+        MutableStateFlow(GangnamAddress)
+    val geocurrentLatlngStateFlow: StateFlow<String> = _geocurrentLatlngStateFlow.asStateFlow()
 
-    private val _geocurrentLatlng: MutableLiveData<String> = MutableLiveData()
-    val geocurrentLatlng: LiveData<String> = _geocurrentLatlng
+    private val _currentCameraStateFlow: MutableStateFlow<LatLng> =
+        MutableStateFlow(LatLng(GangnamLat, GangnamLng))
+    val currentCameraStateFlow: StateFlow<LatLng> = _currentCameraStateFlow.asStateFlow()
 
     fun turnwigetVisible(visible: Boolean) {
-        _wigetVisibility.postValue(visible)
+        _wigetVisibilityStateFlow.value = visible
     }
 
     fun setZoom(zoom: Double) {
-        _zoomCamera.postValue(zoom)
+        _zoomCamera.value = zoom
     }
 
-    suspend fun outZoom() {
-        placeListStateFlow.collect { uiState ->
-            when (uiState) {
-                is PBState.Success -> {
-                    uiState.data.forEach {
-                        CustomMarkerUtil.transMarker(it)
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun inZoom() {
-        placeListStateFlow.collect { uiState ->
-            when (uiState) {
-                is PBState.Success -> {
-                    uiState.data.forEach {
-                        if (_focusedPlace.value != null) {
-                            val focus = _focusedPlace.value
-                            if (it == focus) CustomMarkerUtil.getFocus(it)
-                            else CustomMarkerUtil.loseFocus(it)
-                        } else {
-                            CustomMarkerUtil.loseFocus(it)
+    fun outZoom() {
+        CoroutineScope(Dispatchers.IO).launch {
+            placeListStateFlow.collect { uiState ->
+                when (uiState) {
+                    is PBState.Success -> {
+                        uiState.data.forEach {
+                            CustomMarkerUtil.transMarker(it)
                         }
                     }
                 }
@@ -87,53 +72,82 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun currentPositionListener(latLng: LatLng) {
-        _currentLatlng.postValue(LatLng(latLng.latitude, latLng.longitude))
+    fun inZoom() {
+        CoroutineScope(Dispatchers.IO).launch {
+            placeListStateFlow.collect { uiState ->
+                when (uiState) {
+                    is PBState.Success -> {
+                        uiState.data.forEach {
+                            if (focusedCustomMarkerModelStateFlow.value != null) {
+                                val focus = focusedCustomMarkerModelStateFlow.value
+                                if (it == focus) CustomMarkerUtil.getFocus(it)
+                                else CustomMarkerUtil.loseFocus(it)
+                            } else {
+                                CustomMarkerUtil.loseFocus(it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun currentPosition(latLng: LatLng) {
+        Log.d("민규입니다다","currentPosition")
+        _currentLatlngStateFlow.value = latLng
     }
 
     fun currentCamera(latLng: LatLng) {
-        _currentCamera.postValue(LatLng(latLng.latitude, latLng.longitude))
+        _currentCameraStateFlow.value = latLng
     }
 
-    fun onPlaceClick(clickedCustomMarker: CustomMarker): Boolean {
-        if (_focusedPlace.value == clickedCustomMarker) return true
-        setFocusedPlace(clickedCustomMarker)
+    fun onPlaceClickListener(customMarkerModel: CustomMarkerModel): Boolean {
+        if (focusedCustomMarkerModelStateFlow.value == customMarkerModel) return true
+        setFocusedPlace(customMarkerModel)
         return true
     }
 
-    fun setFocusedPlace(customMarker: CustomMarker) {
-        CustomMarkerUtil.loseFocus(_focusedPlace.value)
-        CustomMarkerUtil.getFocus(customMarker)
-        _focusedPlace.value = customMarker
-        _currentCamera.value = customMarker.marker.position
+    fun setFocusedCustomMarker(customMarkerModel: CustomMarkerModel?) {
+        _focusedCustomMarkerModelStateFlow.value = customMarkerModel
+    }
+
+    fun setFocusedPlace(customMarkerModel: CustomMarkerModel) {
+        CustomMarkerUtil.loseFocus(focusedCustomMarkerModelStateFlow.value)
+        CustomMarkerUtil.getFocus(customMarkerModel)
+        setFocusedCustomMarker(customMarkerModel)
+        currentCamera(customMarkerModel.marker.position)
         setZoom(16.0)
-        CoroutineScope(Dispatchers.IO).launch {
-            inZoom()
-        }
+        inZoom()
+    }
+
+    fun setGeoCurrentLatlng(address: String) {
+        _geocurrentLatlngStateFlow.value = address
     }
 
     fun getAddress(geocoder: Geocoder, latLng: LatLng) {
         val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).firstOrNull()
         val fullAddress = address?.getAddressLine(0).toString()
-        val contry = address?.countryName ?: "null"
+        val contry = address?.countryName ?: ""
         if (contry != "대한민국") {
-            _geocurrentLatlng.value = "주소를 가져 올 수 없습니다."
+            setGeoCurrentLatlng("주소를 가져 올 수 없습니다.")
             return
         }
         val countryLength = address?.countryName?.length ?: -1
         val result = fullAddress.substring(countryLength + 1)
 
-        _geocurrentLatlng.value = result
+        setGeoCurrentLatlng(result)
     }
 
     fun getPBListChangeAdress() {
         _placeListStateFlow.value = PBState.Loading
 
+        if(currentLatlngStateFlow.value == LatLng.INVALID) return
+
         CoroutineScope(Dispatchers.IO).launch {
-            when (val result = getPBListUseCase(_currentLatlng.value)) {
+            when (val result = getPBListUseCase(currentLatlngStateFlow.value)) {
                 is DataResult.Success -> {
                     var id: Long = 0
-                    val placelist: List<CustomMarker> = result.data.map {
+                    val placelist: List<CustomMarkerModel> = result.data.map {
                         PBEntityMapper.PBEntityToCustomMarker(id++, it)
                     }
                     _placeListStateFlow.value = PBState.Success(placelist)
@@ -145,9 +159,15 @@ class MainViewModel @Inject constructor(
                     _placeListStateFlow.value = PBState.Error
                 }
             }
-            _focusedPlace.postValue(null)
+            setFocusedCustomMarker(null)
         }
 
+    }
+
+    companion object {
+        private const val GangnamLat = 37.497885
+        private const val GangnamLng = 127.027512
+        private const val GangnamAddress = "서울특별시 강남구 역삼동 858-50"
     }
 
 }

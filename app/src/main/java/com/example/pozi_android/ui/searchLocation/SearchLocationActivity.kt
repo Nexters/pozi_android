@@ -25,19 +25,17 @@ class SearchLocationActivity :
     private val viewModel by viewModels<SearchLocationViewModel>()
 
     private lateinit var addressAdapter: SearchLocationAdapter
-    //private lateinit var geocoder: Geocoder
 
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        //geocoder = Geocoder(this, Locale.KOREA)
         setRecyclerView()
         setListeners()
         setObservers()
         setClickListener()
     }
 
-    private fun setClickListener(){
+    private fun setClickListener() {
         binding.backButton.setOnClickListener {
             finish()
         }

@@ -8,11 +8,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.pozi_android.R
 import com.example.pozi_android.databinding.ItemPbViewpagerBinding
+import com.example.pozi_android.ui.main.model.CustomMarkerModel
 
 class MainPBInfoPagerAdapter :
-    ListAdapter<CustomMarker, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
+    ListAdapter<CustomMarkerModel, MainPBInfoPagerAdapter.ItemViewHolder>(differ) {
 
-    var findLoadClickListener: ((CustomMarker?) -> Unit)? = null
+    var findLoadClickListener: ((CustomMarkerModel?) -> Unit)? = null
 
     inner class ItemViewHolder(private val binding: ItemPbViewpagerBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -23,7 +24,7 @@ class MainPBInfoPagerAdapter :
             }
         }
 
-        fun bind(item: CustomMarker) {
+        fun bind(item: CustomMarkerModel) {
             binding.place = item
             when (item.brandName) {
                 "인생네컷" -> setImage(R.drawable.brand_lifefourcut)
@@ -58,12 +59,12 @@ class MainPBInfoPagerAdapter :
     }
 
     companion object {
-        val differ = object : DiffUtil.ItemCallback<CustomMarker>() {
-            override fun areItemsTheSame(oldItem: CustomMarker, newItem: CustomMarker): Boolean {
+        val differ = object : DiffUtil.ItemCallback<CustomMarkerModel>() {
+            override fun areItemsTheSame(oldItem: CustomMarkerModel, newItem: CustomMarkerModel): Boolean {
                 return oldItem == newItem
             }
 
-            override fun areContentsTheSame(oldItem: CustomMarker, newItem: CustomMarker): Boolean {
+            override fun areContentsTheSame(oldItem: CustomMarkerModel, newItem: CustomMarkerModel): Boolean {
                 return oldItem == newItem
             }
         }
