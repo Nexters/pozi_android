@@ -1,8 +1,8 @@
-package com.example.pozi_android.ui.main
+package com.example.pozi_android.ui.main.model
 
 import com.naver.maps.map.overlay.Marker
 
-data class CustomMarker(
+data class CustomMarkerModel(
     var id:Long,
     var marker: Marker,
     var address: String,

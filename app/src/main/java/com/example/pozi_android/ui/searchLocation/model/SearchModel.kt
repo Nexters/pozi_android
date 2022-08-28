@@ -1,4 +1,4 @@
-package com.example.pozi_android.ui.searchLocation
+package com.example.pozi_android.ui.searchLocation.model
 
 data class SearchModel(
     val title: String,

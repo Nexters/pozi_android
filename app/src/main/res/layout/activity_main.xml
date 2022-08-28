@@ -20,8 +20,8 @@
             android:id="@+id/mainmap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:moveCamera="@{viewModel.currentCamera}"
-            app:naverlogoposition="@{viewModel.wigetVisibility}"
+            app:moveCamera="@{viewModel.currentCameraStateFlow}"
+            app:naverlogoposition="@{viewModel.wigetVisibilityStateFlow}"
             tools:layout_editor_absoluteX="1dp"
             tools:layout_editor_absoluteY="0dp" />
 
@@ -62,7 +62,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:setText="@{viewModel.geocurrentLatlng}"
+                app:setText="@{viewModel.geocurrentLatlngStateFlow}"
                 tools:text="서울 강남구 강남대로 396" />
 
             <Button
@@ -138,7 +138,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:visibility="@{viewModel.wigetVisibility ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{viewModel.wigetVisibilityStateFlow ? View.VISIBLE : View.GONE}" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

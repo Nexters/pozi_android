@@ -1,10 +1,7 @@
 package com.example.pozi_android.domain.mapper
 
 import com.example.pozi_android.data.remote.spec.Place
-import com.example.pozi_android.domain.entity.PBEntity
-import com.example.pozi_android.ui.searchLocation.SearchModel
-import com.google.firebase.firestore.DocumentSnapshot
-import kotlin.math.roundToLong
+import com.example.pozi_android.ui.searchLocation.model.SearchModel
 
 object PlaceMapper {
     fun placeToSearchModel(place: Place): SearchModel =

@@ -17,11 +17,20 @@ class KakaoSearchRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : KakaoSearchRepository {
 
-    override suspend fun getSearchKeyword(keyword: String): DataResult<ResultSearchKeyword?> =
+    override suspend fun getSearchKeyword(keyword: String): DataResult<ResultSearchKeyword> =
         withContext(ioDispatcher) {
             try {
-                val response = api.getSearchKeyword(SearchUrl.KAKAO_API_KEY,keyword).execute()
-                DataResult.Success(response.body())
+                val response = api.getSearchKeyword(SearchUrl.KAKAO_API_KEY, keyword).execute()
+                val result: ResultSearchKeyword? = response.body()
+                if (result == null) {
+                    DataResult.Error("search : null")
+                } else {
+                    if (result.documents.isEmpty()) {
+                        DataResult.NoData
+                    } else {
+                        DataResult.Success(result)
+                    }
+                }
             } catch (e: Exception) {
                 DataResult.Error("서버와 연결오류")
             }
