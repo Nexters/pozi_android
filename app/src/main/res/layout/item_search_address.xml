@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="com.example.pozi_android.ui.searchLocation.model.SearchModel" />
+            type="com.pozi.pozi_android.ui.searchLocation.model.SearchModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

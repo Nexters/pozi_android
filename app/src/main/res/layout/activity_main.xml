@@ -8,7 +8,7 @@
         <variable name="currentimage" type="Integer" />
         <variable
             name="viewModel"
-            type="com.example.pozi_android.ui.main.MainViewModel" />
+            type="com.pozi.pozi_android.ui.main.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.pozi_android">
+    package="com.pozi.pozi_android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,14 +15,14 @@
         android:roundIcon="@drawable/poziicon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Pozi_android"
-        android:name=".Application">
+        android:name="com.pozi.pozi_android.Application">
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="@string/naver_map_client_id"/>
 
         <activity
-            android:name=".ui.splash.SplashActivity"
+            android:name="com.pozi.pozi_android.ui.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,11 +32,11 @@
         </activity>
 
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name="com.pozi.pozi_android.ui.main.MainActivity"
             android:exported="true"/>
 
         <activity
-            android:name=".ui.searchLocation.SearchLocationActivity"
+            android:name="com.pozi.pozi_android.ui.searchLocation.SearchLocationActivity"
             android:exported="true" />
     </application>
 

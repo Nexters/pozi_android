@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.pozi_android.ui.searchLocation.SearchLocationViewModel"
+            type="com.pozi.pozi_android.ui.searchLocation.SearchLocationViewModel"
             />
     </data>
 
