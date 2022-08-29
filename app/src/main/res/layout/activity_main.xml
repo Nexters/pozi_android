@@ -21,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:moveCamera="@{viewModel.currentCameraStateFlow}"
-            app:naverlogoposition="@{viewModel.wigetVisibilityStateFlow}"
+            app:wigetvisible="@{viewModel.wigetVisibilityStateFlow}"
+            app:placeListState="@{viewModel.placeListStateFlow}"
             tools:layout_editor_absoluteX="1dp"
             tools:layout_editor_absoluteY="0dp" />
 
@@ -31,16 +32,16 @@
             android:layout_height="48dp"
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="16dp"
-            app:setImage="@{currentimage}"
-            app:layout_constraintBottom_toTopOf="@+id/ViewPager"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintBottom_toTopOf="@id/wigetseat"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:setImage="@{currentimage}" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchLocationButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="15dp"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="90dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -65,18 +66,6 @@
                 app:setText="@{viewModel.geocurrentLatlngStateFlow}"
                 tools:text="서울 강남구 강남대로 396" />
 
-            <Button
-                android:id="@+id/upToDataBtn"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@color/signature"
-                android:text="현재위치에서 재 검색"
-                android:textColor="@color/white"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/locationTxt" />
-
             <ImageView
                 android:id="@+id/caretdown"
                 android:layout_width="12dp"
@@ -89,57 +78,66 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <Button
+            android:id="@+id/upToDataBtn"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/radius_23"
+            android:text="현재위치에서 재 검색"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/searchLocationButton" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/wigetseat"
             android:layout_width="match_parent"
             android:layout_height="172dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
             android:layout_marginBottom="96dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:noDataVisible="@{viewModel.placeListStateFlow}"
-            android:background="@color/signature">
+            app:wigetvisible="@{viewModel.wigetVisibilityStateFlow}"
+            app:placeListState="@{viewModel.placeListStateFlow}">
 
-            <TextView
-                android:id="@+id/nodatatitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="5Km 이내의 포토부스가 없어요"
-                android:textSize="20dp"
-                android:textColor="@color/white"
-                android:textStyle="bold"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/nodata_pb_shape"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:noDataVisible="@{viewModel.placeListStateFlow}">
+                <TextView
+                    android:id="@+id/nodatatitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="앗, 주변에 포토부스가 없어요!"
+                    android:textColor="@color/textColor"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/ViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="@{viewModel.wigetVisibilityStateFlow ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="80dp"
-                android:text="다른 주소로 검색해 주세요!!"
-                android:textSize="17dp"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/nodatatitle" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/ViewPager"
-            android:layout_width="match_parent"
-            android:layout_height="172dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="96dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="@{viewModel.wigetVisibilityStateFlow ? View.VISIBLE : View.GONE}" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

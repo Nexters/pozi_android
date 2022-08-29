@@ -18,9 +18,12 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/imageradius.xml" value="0.18" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/main_mylocation_btn_shape.xml" value="0.1905" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/marker_lifefourcut.xml" value="0.1505" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/nodata_pb_shape.xml" value="0.158" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/nodata_shape.xml" value="0.158" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/radius_23.xml" value="0.158" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/radius_4.xml" value="0.18" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/drawable/radius_8.xml" value="0.1765" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_search_location.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/activity_splash.xml" value="0.10400000000000001" />
         <entry key="..\:/Users/user/AndroidStudioProjects/pozi_android/app/src/main/res/layout/item_pb_viewpager.xml" value="0.264" />
