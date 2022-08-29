@@ -2,6 +2,12 @@ package com.example.pozi_android
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.ColorDrawable
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatDialog
+import com.bumptech.glide.Glide
 import com.naver.maps.map.NaverMapSdk
 import dagger.hilt.android.HiltAndroidApp
 

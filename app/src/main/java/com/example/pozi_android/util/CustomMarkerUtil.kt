@@ -17,6 +17,7 @@ object CustomMarkerUtil {
     }
 
     fun getFocus(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {
+        customMarkerModel?.marker?.zIndex = 100
         customMarkerModel?.marker?.width = 155
         customMarkerModel?.marker?.height = 170
         when (customMarkerModel?.brandName) {
@@ -48,6 +49,7 @@ object CustomMarkerUtil {
     }
 
     fun loseFocus(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {
+        customMarkerModel?.marker?.zIndex = 0
         customMarkerModel?.marker?.width = 155
         customMarkerModel?.marker?.height = 170
         when (customMarkerModel?.brandName) {

@@ -93,7 +93,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun currentPosition(latLng: LatLng) {
-        Log.d("민규입니다다","currentPosition")
         _currentLatlngStateFlow.value = latLng
     }
 
