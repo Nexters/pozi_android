@@ -2,7 +2,9 @@ package com.pozi.pozi_android.widget
 
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.marginBottom
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.pozi.pozi_android.ui.main.state.PBState
@@ -37,14 +39,23 @@ fun setdisttext(view: TextView, text: Long?) {
     else view.text = text.toString() + "m"
 }
 
-@BindingAdapter("naverlogoposition")
-fun naverlogoposition(mapView: MapView, isVisible: Boolean) {
+@BindingAdapter("wigetvisible","placeListState")
+fun naverlogoposition(mapView: MapView, wigetvisible: Boolean, pbState: PBState) {
     mapView.getMapAsync { naverMap ->
-        if (isVisible) {
+        if (wigetvisible || PBState.NoData == pbState) {
             naverMap.uiSettings.setLogoMargin(65, 0, 0, 750)
         } else {
-            naverMap.uiSettings.setLogoMargin(65, 0, 0, 50)
+            naverMap.uiSettings.setLogoMargin(65, 0, 0, 60)
         }
+    }
+}
+
+@BindingAdapter("wigetvisible","placeListState")
+fun wigetseatVisible(view: View, wigetvisible: Boolean, pbState: PBState) {
+    if (wigetvisible || PBState.NoData == pbState) {
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
     }
 }
 
