@@ -83,18 +83,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         geocoder = Geocoder(this, Locale.KOREA)
         setImage()
         permissionCheck()
-        //ObserveViewModel()
         mapView.getMapAsync(this)
-        Log.d("민규", "initPBList 시작")
         ObserveViewModel()
-        //initPBList()
-        //ObserveViewModel()
         settingViewpager()
         setClickListener()
     }
 
     private fun initPBList() {
-        Log.d("민규", "1")
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -103,10 +98,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("민규", "2")
             return
         }
-        Log.d("민규", "3")
         fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this@MainActivity).apply {
                 lastLocation.addOnSuccessListener { location: Location? ->
@@ -120,7 +113,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     }
                     viewModel.currentCamera(currentLocation)
                     viewModel.currentPosition(currentLocation)
-                    Log.d("민규", "123123" + viewModel.geocurrentLatlngStateFlow.value)
                 }
             }
     }
@@ -174,16 +166,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                     viewModel.getPBListChangeAdress()
                 }
 
-                //Log.d("민규입니",viewModel.geocurrentLatlngStateFlow.value)
             }
         }
         lifecycleScope.launch {
             viewModel.placeListStateFlow.collect { uiState ->
-                Log.d("민규입니다다", viewModel.geocurrentLatlngStateFlow.value)
-                Log.d("민규입니다다", uiState.toString())
                 when (uiState) {
                     is PBState.Success -> {
-                        Log.d("민규입니다다", uiState.data.toString())
                         attachMarker(uiState.data)
                         viewPagerAdapter.submitList(uiState.data)
                     }
