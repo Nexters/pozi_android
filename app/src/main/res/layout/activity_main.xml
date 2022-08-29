@@ -88,7 +88,7 @@
                 app:layout_constraintEnd_toEndOf="@id/locationTxt"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="172dp"

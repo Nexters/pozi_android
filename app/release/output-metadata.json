@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.example.pozi_android",
+  "applicationId": "com.pozi.pozi_android",
   "variantName": "release",
   "elements": [
     {
