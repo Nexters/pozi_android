@@ -47,6 +47,4 @@ object ApiModule {
     fun provideApiService(retrofit: Retrofit): KakaoAPI {
         return retrofit.create(KakaoAPI::class.java)
     }
-
-
 }
