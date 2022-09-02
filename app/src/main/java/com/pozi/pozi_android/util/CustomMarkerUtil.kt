@@ -11,9 +11,9 @@ object CustomMarkerUtil {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     fun transMarker(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {
-        customMarkerModel?.marker?.width = 50
-        customMarkerModel?.marker?.height = 50
-        customMarkerModel?.marker?.icon = OverlayImage.fromResource(R.drawable.marker_small)
+        customMarkerModel?.marker?.width = 70
+        customMarkerModel?.marker?.height = 70
+        customMarkerModel?.marker?.icon = OverlayImage.fromResource(R.drawable.marker_s)
     }
 
     fun getFocus(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {

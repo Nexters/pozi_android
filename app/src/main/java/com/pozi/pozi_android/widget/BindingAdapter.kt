@@ -43,7 +43,7 @@ fun setdisttext(view: TextView, text: Long?) {
 fun naverlogoposition(mapView: MapView, wigetvisible: Boolean, pbState: PBState) {
     mapView.getMapAsync { naverMap ->
         if (wigetvisible || PBState.NoData == pbState) {
-            naverMap.uiSettings.setLogoMargin(65, 0, 0, 750)
+            naverMap.uiSettings.setLogoMargin(65, 0, 0, 620)
         } else {
             naverMap.uiSettings.setLogoMargin(65, 0, 0, 60)
         }

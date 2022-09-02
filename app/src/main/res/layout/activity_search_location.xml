@@ -52,6 +52,9 @@
             android:textColorHint="@color/textSubColor"
             android:textSize="16dp"
             app:layout_constraintTop_toBottomOf="@id/backButton"
+            android:imeOptions="actionDone"
+            android:maxLines="1"
+            android:inputType="text"
             tools:text="서현역" />
 
         <ImageView
