@@ -13,4 +13,5 @@
     <color name="textSubColor">#999999</color>
     <color name="address_bg">#E6151515</color>
     <color name="gray_900">#151515</color>
+    <color name="transparent">#00000000</color>
 </resources>

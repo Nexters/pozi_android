@@ -92,6 +92,7 @@
             android:paddingLeft="16dp"
             android:text="현위치에서 재검색"
             android:textSize="16dp"
+            android:lineHeight="22dp"
             android:textColor="@color/white"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -100,25 +101,27 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/wigetseat"
             android:layout_width="match_parent"
-            android:layout_height="172dp"
-            android:layout_marginBottom="48dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginStart="15dp"
+            android:layout_height="220dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:background="@color/transparent"
             app:wigetvisible="@{viewModel.wigetVisibilityStateFlow}"
             app:placeListState="@{viewModel.placeListStateFlow}">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/radius12_white_shadow"
+                android:layout_height="172dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="48dp"
+                android:background="@drawable/radius12_white"
+                android:elevation="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:noDataVisible="@{viewModel.placeListStateFlow}">
+
                 <TextView
                     android:id="@+id/nodatatitle"
                     android:layout_width="wrap_content"
@@ -136,8 +139,13 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/ViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="172dp"
+                android:background="@drawable/radius12_white"
+                android:elevation="12dp"
                 android:orientation="horizontal"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="48dp"
                 android:visibility="@{viewModel.wigetVisibilityStateFlow ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
