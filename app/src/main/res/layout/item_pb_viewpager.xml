@@ -12,8 +12,10 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/radius12_white_shadow"
+        android:background="@color/white"
         app:cardCornerRadius="12dp"
+        android:elevation="0dp"
+        android:outlineProvider="none"
         tools:layout_height="172dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
