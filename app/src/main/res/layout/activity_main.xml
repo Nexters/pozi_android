@@ -83,7 +83,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/radius_23"
-            style="?android:attr/borderlessButtonStyle"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingTop="8dp"

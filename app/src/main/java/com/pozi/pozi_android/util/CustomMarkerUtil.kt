@@ -18,8 +18,8 @@ object CustomMarkerUtil {
 
     fun getFocus(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {
         customMarkerModel?.marker?.zIndex = 100
-        customMarkerModel?.marker?.width = 155
-        customMarkerModel?.marker?.height = 170
+        customMarkerModel?.marker?.width = 165
+        customMarkerModel?.marker?.height = 180
         when (customMarkerModel?.brandName) {
             "포토매틱" -> {
                 customMarkerModel.marker.icon = OverlayImage.fromResource(R.drawable.marker_photomatic_on)
@@ -50,8 +50,8 @@ object CustomMarkerUtil {
 
     fun loseFocus(customMarkerModel: CustomMarkerModel?) = coroutineScope.launch {
         customMarkerModel?.marker?.zIndex = 0
-        customMarkerModel?.marker?.width = 155
-        customMarkerModel?.marker?.height = 170
+        customMarkerModel?.marker?.width = 165
+        customMarkerModel?.marker?.height = 180
         when (customMarkerModel?.brandName) {
             "포토매틱" -> {
                 customMarkerModel.marker.icon = OverlayImage.fromResource(R.drawable.marker_photomatic_off)

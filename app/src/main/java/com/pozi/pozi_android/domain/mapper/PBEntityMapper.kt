@@ -39,8 +39,8 @@ object PBEntityMapper {
             tag = id
             isHideCollidedSymbols = true
             isIconPerspectiveEnabled = true
-            width = 155
-            height = 170
+            width = 165
+            height = 180
             icon = when (pbEntity.brandName) {
                 "포토매틱" -> {
                     OverlayImage.fromResource(R.drawable.marker_photomatic_off)

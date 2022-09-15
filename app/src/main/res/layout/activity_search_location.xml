@@ -70,16 +70,16 @@
 
         <TextView
             android:id="@+id/noDataText"
-            android:text="검색결과가 없습니다."
-            android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="검색결과가 없습니다."
+            android:textSize="20sp"
+            android:textColor="@color/gray400"
             android:visibility="@{viewModel.noDataTextVisible ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/searchText" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/searchRV"
